@@ -11,7 +11,6 @@ map<string, string> STEP::extractFeatures()
 {
 	cout << "Extracting Features... \n";
 	string currentLine;
-	string advFaceNum;
 	string stepNumber;
 	map<string, string> dataList;
 	map<string, string> featureList;
@@ -40,14 +39,14 @@ map<string, string> STEP::extractFeatures()
 					dataList.insert({ stepNumber, currentLine }); // insert data section into map
 					if (currentLine.find(" ADVANCED_FACE ") != string::npos)
 					{
-						advFaceNum = currentLine.substr(0, currentLine.find(" "));
-						faces.insert(advFaceNum); // insert adv face locations into a set for use later
+						faces.insert(currentLine); // insert adv face locations into a set for use later
 					}
 				}
 		}
+		stepNumber = "";
 		StepFile.close();
 		cout << "STEP File Closed\n";
-		
+		/*
 		cout << "Adv Faces Found\n";
 		for (auto it = faces.begin(); it != faces.end(); it++)
 		{
@@ -58,15 +57,58 @@ map<string, string> STEP::extractFeatures()
 		{
 			cout << item.first << " " << item.second << "\n";
 		}
+		auto it = dataList.find("#36");
+		std::cout << it->second;
+		*/
 		// Group features with sub features next
 		for (auto item : faces) // Iterate through adv faces
 		{
-			while (lastNumberFound != true)
+			nextlines.insert(item);
+			while (lastNumberFound != true) // runs until last number is found
 			{
-
+				for (auto nLine : nextlines) // cycles through set nextlines
+				{
+					cout << nLine << "\n";
+					string subnLine = nLine.substr(nLine.find(" "), nLine.size()); // get sub string to avoid reading step's own ID
+					for (char& ch : subnLine) // Cycles through each character in nLine
+					{
+						if (numberFound == true)
+						{
+							if (isdigit(ch))
+							{
+								stepNumber += ch;
+							}
+							else 
+							{
+								cout << "Found : " + stepNumber << "\n";
+								numberFound = false;
+								for (auto& it : dataList) {
+									if (it.first == "#" + stepNumber)
+									{
+										foundlines.insert(it.second);
+									}
+								}
+								stepNumber = "";
+							}
+						}
+						else if (ch == '#')
+						{
+							numberFound = true;
+						}	
+					}
+					if (foundlines.size() == 0)
+					{
+						lastNumberFound = true;
+					}
+				}
+				nextlines.clear();
+				nextlines.insert(foundlines.begin(), foundlines.end());
+				foundlines.clear();
 			}
+			lastNumberFound = false;
 		}
 	}
+	cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
 	return featureList;
 }
 
