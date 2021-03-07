@@ -4,8 +4,37 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <set>
+#include <algorithm>
 
 using namespace std;
+
+void checkDifference(map<string, string> dataList, map<string, vector<string>> featureList)
+{
+	set<string> featureLines;
+	set<string> dataLines;
+	set<string> result;
+
+	for (auto key : featureList)
+	{
+		for (auto it = key.second.begin(); it != key.second.end(); ++it)
+		{
+			featureLines.insert(*it);
+		}
+	}
+	for (auto key2 : dataList)
+	{
+		dataLines.insert(key2.second);
+	}
+	// Compare features to data to see what's missing
+	set_difference(dataLines.begin(), dataLines.end(), featureLines.begin(), featureLines.end(),inserter(result, result.begin()));
+	cout << "\n\nDIFFERENCES\n\n";
+	for (auto diff : result)
+	{
+		cout << diff << "\n"; // If these lines are missing from STEP, it won't compile in STEP readers
+	}
+}
+
 
 map<string, vector<string>> STEP::extractFeatures()
 {
@@ -22,6 +51,7 @@ map<string, vector<string>> STEP::extractFeatures()
 	bool numberFound = false;
 	bool lastNumberFound = false;
 
+	// Read STEP file contents and 
 	StepFile.open("C:\\work\\STEP\\Cube.STEP"); // Read STEP File
 	if (!StepFile)
 	{
@@ -62,7 +92,7 @@ map<string, vector<string>> STEP::extractFeatures()
 		}
 		auto it = dataList.find("#36");
 		std::cout << it->second;
-		*/#
+		*/
 
 		// Group features with sub features next
 		for (auto item : faces) // Iterate through adv faces
@@ -114,6 +144,7 @@ map<string, vector<string>> STEP::extractFeatures()
 		}
 	}
 	std::cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
+	checkDifference(dataList , featureList);
 	return featureList;
 }
 
