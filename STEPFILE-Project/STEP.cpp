@@ -3,34 +3,34 @@
 #include <fstream>
 #include <string>
 #include <map>
-#include <set>
+#include <vector>
 
 using namespace std;
 
-map<string, string> STEP::extractFeatures()
+map<string, vector<string>> STEP::extractFeatures()
 {
-	cout << "Extracting Features... \n";
+	std::cout << "Extracting Features... \n";
 	string currentLine;
 	string stepNumber;
 	map<string, string> dataList;
-	map<string, string> featureList;
-	set<string> faces;
+	vector<string> faces;
 	ifstream StepFile;
 
-	set<string> foundlines;
-	set<string> nextlines;
+	map<string, vector<string>> featureList;
+	vector<string> foundlines;
+	vector<string> nextlines;
 	bool numberFound = false;
 	bool lastNumberFound = false;
 
 	StepFile.open("C:\\work\\STEP\\Cube.STEP"); // Read STEP File
 	if (!StepFile)
 	{
-		cout << "Unable to open STEP File\n";
+		std::cout << "Unable to open STEP File\n";
 		exit(1);
 	}
 	else 
 	{
-		cout << "STEP File Opened\n";
+		std::cout << "STEP File Opened\n";
 		while (getline (StepFile, currentLine)) // Cycle through each line
 		{
 				if (currentLine[0] == '#')
@@ -39,13 +39,16 @@ map<string, string> STEP::extractFeatures()
 					dataList.insert({ stepNumber, currentLine }); // insert data section into map
 					if (currentLine.find(" ADVANCED_FACE ") != string::npos)
 					{
-						faces.insert(currentLine); // insert adv face locations into a set for use later
+						faces.push_back(currentLine); // insert adv face locations into a set for use later
+						featureList[stepNumber].push_back(currentLine); // insert adv faces into feature list
 					}
 				}
 		}
 		stepNumber = "";
+		currentLine = "";
 		StepFile.close();
-		cout << "STEP File Closed\n";
+		std::cout << "STEP File Closed\n";
+
 		/*
 		cout << "Adv Faces Found\n";
 		for (auto it = faces.begin(); it != faces.end(); it++)
@@ -59,19 +62,24 @@ map<string, string> STEP::extractFeatures()
 		}
 		auto it = dataList.find("#36");
 		std::cout << it->second;
-		*/
+		*/#
+
 		// Group features with sub features next
 		for (auto item : faces) // Iterate through adv faces
 		{
-			nextlines.insert(item);
-			while (lastNumberFound != true) // runs until last number is found
+			currentLine = item.substr(0, item.find(" ")); // CurrentLine used to identify the current adv face
+			std::cout << "\n\n\nNEW FACE " << " " << item << "\n\n";
+			nextlines.insert(nextlines.begin(), item); // Must insert the adv face at the start of the list
+
+			while (lastNumberFound == false) // runs until last number is found
 			{
 				for (auto nLine : nextlines) // cycles through set nextlines
 				{
-					cout << nLine << "\n";
+					//std::cout << "\n" << nLine;
 					string subnLine = nLine.substr(nLine.find(" "), nLine.size()); // get sub string to avoid reading step's own ID
-					for (char& ch : subnLine) // Cycles through each character in nLine
+					for (char& ch : subnLine) // Cycles through each character in subnLine
 					{
+						
 						if (numberFound == true)
 						{
 							if (isdigit(ch))
@@ -80,14 +88,10 @@ map<string, string> STEP::extractFeatures()
 							}
 							else 
 							{
-								cout << "Found : " + stepNumber << "\n";
+								std::cout << "\nFound : #" + stepNumber;
+								foundlines.push_back(dataList["#" + stepNumber]); // add found numbers to foundlines for next iteration
+								featureList[currentLine].push_back(dataList["#" + stepNumber]); // Add found step into currentline's list of steps
 								numberFound = false;
-								for (auto& it : dataList) {
-									if (it.first == "#" + stepNumber)
-									{
-										foundlines.insert(it.second);
-									}
-								}
 								stepNumber = "";
 							}
 						}
@@ -102,19 +106,20 @@ map<string, string> STEP::extractFeatures()
 					}
 				}
 				nextlines.clear();
-				nextlines.insert(foundlines.begin(), foundlines.end());
+				for (int i = 0; i < foundlines.size(); i++)
+					nextlines.push_back(foundlines[i]);
 				foundlines.clear();
-			}
+			} // end while
 			lastNumberFound = false;
 		}
 	}
-	cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
+	std::cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
 	return featureList;
 }
 
-map<string, string> STEP::stepController()
+map<string, vector<string>> STEP::stepController()
 {
-	cout << "Welcome to the STEP Class\n";
-	map<string, string> featureList = extractFeatures();
+	std::cout << "Welcome to the STEP Class\n";
+	map<string, vector<string>> featureList = extractFeatures();
 	return featureList;
 }
