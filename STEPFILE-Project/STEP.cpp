@@ -8,10 +8,13 @@
 #include <algorithm>
 
 using namespace std;
-
-void checkDifference(map<string, string> dataList, map<string, vector<string>> featureList)
+// This method is used to identify the lines in the step file that are unrelated to the adv face features
+// These lines are essential for building the STEP file
+void STEP::checkDifference()
 {
-	set<string> featureLines;
+	map<string, vector<string>> featureList = STEP::stepFeatureList;
+	map<string, string> dataList = STEP::stepDataList;
+	set<string> featureLines; 
 	set<string> dataLines;
 	set<string> result;
 
@@ -33,10 +36,11 @@ void checkDifference(map<string, string> dataList, map<string, vector<string>> f
 	{
 		cout << diff << "\n"; // If these lines are missing from STEP, it won't compile in STEP readers
 	}
+	STEP::diffLines = result;
 }
 
 
-map<string, vector<string>> STEP::extractFeatures()
+void STEP::extractFeatures()
 {
 	std::cout << "Extracting Features... \n";
 	string currentLine;
@@ -50,9 +54,10 @@ map<string, vector<string>> STEP::extractFeatures()
 	vector<string> nextlines;
 	bool numberFound = false;
 	bool lastNumberFound = false;
+	bool header = true;
 
 	// Read STEP file contents and 
-	StepFile.open("C:\\work\\STEP\\Cube.STEP"); // Read STEP File
+	StepFile.open("C:\\work\\STEP\\Sphere.STEP"); // Read STEP File
 	if (!StepFile)
 	{
 		std::cout << "Unable to open STEP File\n";
@@ -65,6 +70,7 @@ map<string, vector<string>> STEP::extractFeatures()
 		{
 				if (currentLine[0] == '#')
 				{
+					header = false;
 					stepNumber = currentLine.substr(0, currentLine.find(" "));
 					dataList.insert({ stepNumber, currentLine }); // insert data section into map
 					if (currentLine.find(" ADVANCED_FACE ") != string::npos)
@@ -73,7 +79,12 @@ map<string, vector<string>> STEP::extractFeatures()
 						featureList[stepNumber].push_back(currentLine); // insert adv faces into feature list
 					}
 				}
+				if (header == true)
+				{
+					STEP::headerLines.push_back(currentLine);
+				}
 		}
+		STEP::stepDataList = dataList;
 		stepNumber = "";
 		currentLine = "";
 		StepFile.close();
@@ -143,14 +154,13 @@ map<string, vector<string>> STEP::extractFeatures()
 			lastNumberFound = false;
 		}
 	}
+	STEP::stepFeatureList = featureList;
 	std::cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
-	checkDifference(dataList , featureList);
-	return featureList;
+	checkDifference();
 }
 
-map<string, vector<string>> STEP::stepController()
+void STEP::stepController()
 {
 	std::cout << "Welcome to the STEP Class\n";
-	map<string, vector<string>> featureList = extractFeatures();
-	return featureList;
+	extractFeatures();
 }

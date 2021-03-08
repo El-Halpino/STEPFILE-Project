@@ -1,15 +1,23 @@
 #pragma once
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
-
+using namespace std;
 class STEP
 {
 private:
-	std::map<std::string, std::vector<std::string>> extractFeatures();
+	map<string, string> stepDataList;
+
+	void extractFeatures();
+	void checkDifference();
 
 public:	
-	std::map<std::string, std::vector<std::string>> stepController();
+	vector<string> headerLines;
+	set<string> diffLines;
+	map<string, vector<string>> stepFeatureList;
 
+	void stepController();
+	
 };
 

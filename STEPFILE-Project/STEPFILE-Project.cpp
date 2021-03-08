@@ -4,17 +4,22 @@
 #include <chrono>
 #include <fstream>
 #include <set>
+#include <vector>
 #include <algorithm>
+#include <type_traits>
+
 #include "STEP.h"
 using namespace std;
 /*TO DO*/
-// Gather header section of STEP file for file writing
-// Pass differences from checkDifference() for file writing
-// Edit writeToFile() to allow any file to be passed (header input needs automation)
+// Edit writeToFile() to allow any file to be passed with specified faces too!
 
-void writeToFile(map<string, vector<string>> featureList)
+void writeToFile(STEP stepDataObj)
 {
+    map<string, vector<string>> featureList = stepDataObj.stepFeatureList;
+    vector<string> header = stepDataObj.headerLines;
+    set<string> compileLines = stepDataObj.diffLines;
     set<string> featureLines;
+
     for (auto key : featureList)
     {
         for (auto it = key.second.begin(); it != key.second.end(); ++it)
@@ -23,24 +28,40 @@ void writeToFile(map<string, vector<string>> featureList)
         }
     }
 
-    ofstream TestFile("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\testfile.step");
-
-    TestFile << "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION (( 'STEP AP203' ),\n    '1' );\nFILE_NAME ('Cube.STEP',\n    '2020-10-26T15:18:52',\n(''),\n(''),\n'SwSTEP 2.0',\n'SolidWorks 2020',\n'' );\nFILE_SCHEMA(('CONFIG_CONTROL_DESIGN'));\nENDSEC;\n\nDATA;\n";
-    for (auto line : featureLines)
+    ofstream TestFile("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\testfile2.step"); // File created and opened
+    /*
+    TestFile.seekp(0, ios::end);
+    if (!TestFile.tellp() == 0) // If the file is not empty then delete it
+    { 
+       remove("C:\\Users\\alanh\\source\\repos\\STEPFILE - Project\\WriteTests\\testfile2.step");
+       cout << "File Deleted\n";
+    }
+    */
+    for (auto line1 : header)
     {
-            TestFile << line << "\n";
+        cout << line1 << "\n";
+        TestFile << line1 << "\n";
+    }
+    for (auto line2 : featureLines)
+    {
+            TestFile << line2 << "\n";
+    }
+    for (auto line3 : compileLines)
+    {
+        TestFile << line3 << "\n";
     }
     TestFile << "ENDSEC;\nEND - ISO - 10303 - 21;";
-    TestFile.close();
+    TestFile.close(); // file closed
 }
 
 int main()
 {
     STEP stepDataObj;
     auto start = chrono::steady_clock::now();// Start Clock
-    map<string, vector<string>> featureList = stepDataObj.stepController();
+    stepDataObj.stepController();
     auto end = chrono::steady_clock::now();// End Clock
     std::cout << "\nTime Taken: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
+    map<string, vector<string>> featureList = stepDataObj.stepFeatureList;
 
     for (auto key : featureList)
     {
@@ -52,6 +73,7 @@ int main()
         }
         cout << "***********************************************************\n";
     }
-    writeToFile(featureList);
+
+    writeToFile(stepDataObj);
     return 0;
 }
