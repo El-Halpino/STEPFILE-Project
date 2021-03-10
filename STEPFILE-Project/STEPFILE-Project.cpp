@@ -11,7 +11,7 @@
 #include "STEP.h"
 using namespace std;
 /*TO DO*/
-// Edit writeToFile() to allow any file to be passed with specified faces too!
+// Edit writeToFile() to allow any file to be passed with specified faces
 
 void writeToFile(STEP stepDataObj)
 {
@@ -19,24 +19,45 @@ void writeToFile(STEP stepDataObj)
     vector<string> header = stepDataObj.headerLines;
     set<string> compileLines = stepDataObj.diffLines;
     set<string> featureLines;
-
+    /*
     for (auto key : featureList)
     {
         for (auto it = key.second.begin(); it != key.second.end(); ++it)
         {
             featureLines.insert(*it);
         }
-    }
-
-    ofstream TestFile("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\testfile2.step"); // File created and opened
-    /*
-    TestFile.seekp(0, ios::end);
-    if (!TestFile.tellp() == 0) // If the file is not empty then delete it
-    { 
-       remove("C:\\Users\\alanh\\source\\repos\\STEPFILE - Project\\WriteTests\\testfile2.step");
-       cout << "File Deleted\n";
-    }
-    */
+    } */
+    //ofstream TestFile("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\testfile3.step"); // File created and opened
+    // Writes each face into separate files
+    /*for (auto key : featureList)
+    {
+        cout << "\nWriting File: " << key.first << "\n";
+        string FilePath = ("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\" + key.first + ".step");
+        ofstream AdvFace(FilePath.c_str());
+        if (!AdvFace)
+        {
+            cout << "Failed to create file\n";
+        }
+        else
+        {
+            for (auto line1 : header)
+            {
+                AdvFace << line1 << "\n";
+            }
+            for (auto it = key.second.begin(); it != key.second.end(); ++it)
+            {
+                AdvFace << *it << "\n";
+            }
+            for (auto line3 : compileLines)
+            {
+                AdvFace << line3 << "\n";
+            }
+            AdvFace << "ENDSEC;\nEND - ISO - 10303 - 21;";
+            AdvFace.close();
+        }
+    } */
+    /* // Writes whole object into one file
+    cout << "\nCurrent File: \n\n";
     for (auto line1 : header)
     {
         cout << line1 << "\n";
@@ -52,6 +73,7 @@ void writeToFile(STEP stepDataObj)
     }
     TestFile << "ENDSEC;\nEND - ISO - 10303 - 21;";
     TestFile.close(); // file closed
+    */  
 }
 
 int main()
@@ -60,10 +82,9 @@ int main()
     auto start = chrono::steady_clock::now();// Start Clock
     stepDataObj.stepController();
     auto end = chrono::steady_clock::now();// End Clock
-    std::cout << "\nTime Taken: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
     map<string, vector<string>> featureList = stepDataObj.stepFeatureList;
-
-    for (auto key : featureList)
+    /*
+    for (auto key : featureList) // Prints the adv faces with their sub features
     {
         cout << "***********************************************************";
         cout << "\n" << "Key: "<< key.first << " Results\n\n";
@@ -73,7 +94,8 @@ int main()
         }
         cout << "***********************************************************\n";
     }
-
-    writeToFile(stepDataObj);
+    */
+   //writeToFile(stepDataObj);
+    std::cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
     return 0;
 }

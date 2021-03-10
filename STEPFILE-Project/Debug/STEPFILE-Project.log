@@ -1,2 +1,3 @@
-﻿  STEPFILE-Project.cpp
+﻿  STEP.cpp
+C:\Users\alanh\source\repos\STEPFILE-Project\STEPFILE-Project\STEP.cpp(182,23): warning C4018: '<': signed/unsigned mismatch
   STEPFILE-Project.vcxproj -> C:\Users\alanh\source\repos\STEPFILE-Project\Debug\STEPFILE-Project.exe

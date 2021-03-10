@@ -139,10 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FeatureFinder.cpp" />
     <ClCompile Include="STEP.cpp" />
     <ClCompile Include="STEPFILE-Project.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FeatureFinder.h" />
     <ClInclude Include="STEP.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -31,20 +31,23 @@ void STEP::checkDifference()
 	}
 	// Compare features to data to see what's missing
 	set_difference(dataLines.begin(), dataLines.end(), featureLines.begin(), featureLines.end(),inserter(result, result.begin()));
+	/*
 	cout << "\n\nDIFFERENCES\n\n";
 	for (auto diff : result)
 	{
 		cout << diff << "\n"; // If these lines are missing from STEP, it won't compile in STEP readers
 	}
+	*/
 	STEP::diffLines = result;
 }
 
-
+// This method reads a step file and creates a datalist and feature list
 void STEP::extractFeatures()
 {
-	std::cout << "Extracting Features... \n";
+	// Declare Variables and DS
 	string currentLine;
 	string stepNumber;
+	string multipleLineSTEP;
 	map<string, string> dataList;
 	vector<string> faces;
 	ifstream StepFile;
@@ -56,8 +59,8 @@ void STEP::extractFeatures()
 	bool lastNumberFound = false;
 	bool header = true;
 
-	// Read STEP file contents and 
-	StepFile.open("C:\\work\\STEP\\Sphere.STEP"); // Read STEP File
+	std::cout << "Extracting Features... \n";
+	StepFile.open("C:\\work\\STEP\\L_Bracket_v1.STEP"); // Read STEP File
 	if (!StepFile)
 	{
 		std::cout << "Unable to open STEP File\n";
@@ -65,12 +68,15 @@ void STEP::extractFeatures()
 	}
 	else 
 	{
+		// Read STEP file's contents into memory
 		std::cout << "STEP File Opened\n";
 		while (getline (StepFile, currentLine)) // Cycle through each line
 		{
-				if (currentLine[0] == '#')
+			if (currentLine[0] == '#')
+			{
+				header = false;
+				if (currentLine.find(";") != string::npos) // if the line ends
 				{
-					header = false;
 					stepNumber = currentLine.substr(0, currentLine.find(" "));
 					dataList.insert({ stepNumber, currentLine }); // insert data section into map
 					if (currentLine.find(" ADVANCED_FACE ") != string::npos)
@@ -79,10 +85,37 @@ void STEP::extractFeatures()
 						featureList[stepNumber].push_back(currentLine); // insert adv faces into feature list
 					}
 				}
-				if (header == true)
+				else // line doesn't end, it is a multiple line step
 				{
-					STEP::headerLines.push_back(currentLine);
+					stepNumber = currentLine.substr(0, currentLine.find(" "));
+					multipleLineSTEP = currentLine;
 				}
+				continue;
+			}
+			else if (header == true) // add to header
+			{
+				STEP::headerLines.push_back(currentLine);
+				continue;
+			}
+			else if (multipleLineSTEP != "") // If the step has multiple lines, append additional lines onto string
+			{
+				if (currentLine.find(";") != string::npos) // If it is the last line (end is denoted by ";")
+				{
+					multipleLineSTEP.append(currentLine);
+					//cout << "Multiple Line STEP " << multipleLineSTEP << "\n\n";
+					dataList.insert({ stepNumber, multipleLineSTEP });
+					multipleLineSTEP = "";
+				}
+				else // Not end, so append 
+				{
+					multipleLineSTEP.append(currentLine);
+				}
+				continue;
+			}
+			else // Current line is not data or header, so continue
+			{
+				continue;
+			}
 		}
 		STEP::stepDataList = dataList;
 		stepNumber = "";
@@ -105,18 +138,17 @@ void STEP::extractFeatures()
 		std::cout << it->second;
 		*/
 
-		// Group features with sub features next
+		// Store features with sub features next
 		for (auto item : faces) // Iterate through adv faces
 		{
 			currentLine = item.substr(0, item.find(" ")); // CurrentLine used to identify the current adv face
-			std::cout << "\n\n\nNEW FACE " << " " << item << "\n\n";
+			std::cout << "\nNEW FACE " << " " << item << "\n";
 			nextlines.insert(nextlines.begin(), item); // Must insert the adv face at the start of the list
 
 			while (lastNumberFound == false) // runs until last number is found
 			{
 				for (auto nLine : nextlines) // cycles through set nextlines
 				{
-					//std::cout << "\n" << nLine;
 					string subnLine = nLine.substr(nLine.find(" "), nLine.size()); // get sub string to avoid reading step's own ID
 					for (char& ch : subnLine) // Cycles through each character in subnLine
 					{
@@ -129,7 +161,7 @@ void STEP::extractFeatures()
 							}
 							else 
 							{
-								std::cout << "\nFound : #" + stepNumber;
+								//std::cout << "\nFound : #" + stepNumber;
 								foundlines.push_back(dataList["#" + stepNumber]); // add found numbers to foundlines for next iteration
 								featureList[currentLine].push_back(dataList["#" + stepNumber]); // Add found step into currentline's list of steps
 								numberFound = false;
@@ -159,6 +191,7 @@ void STEP::extractFeatures()
 	checkDifference();
 }
 
+// This method controls the step class
 void STEP::stepController()
 {
 	std::cout << "Welcome to the STEP Class\n";

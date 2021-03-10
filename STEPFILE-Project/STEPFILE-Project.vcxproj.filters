@@ -21,9 +21,15 @@
     <ClCompile Include="STEP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FeatureFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="STEP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FeatureFinder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
