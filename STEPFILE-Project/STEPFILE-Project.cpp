@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <type_traits>
 
+#include "FeatureFinder.h"
 #include "STEP.h"
 using namespace std;
 /*TO DO*/
@@ -97,5 +98,7 @@ int main()
     */
    //writeToFile(stepDataObj);
     std::cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
+    FeatureFinder highLevelFeatureObj;
+    highLevelFeatureObj.featureFinderController(stepDataObj);
     return 0;
 }
