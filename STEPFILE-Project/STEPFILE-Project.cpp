@@ -79,25 +79,47 @@ void writeToFile(STEP stepDataObj)
 
 int main()
 {
+    string inputFile;
     STEP stepDataObj;
+    cout << "STEP File Location: C:\\work\\STEP\\\n";
+    cout << "Enter the name of the STEP file\n";
+    //cin >> inputFile;
+    inputFile = "L_Bracket_v1";
     auto start = chrono::steady_clock::now();// Start Clock
-    stepDataObj.stepController();
+    stepDataObj.stepController(inputFile);
     auto end = chrono::steady_clock::now();// End Clock
+    std::cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
+    cout << "\nFinished Extracting Features\n";
+    system("pause");
+    string currentLine;
     map<string, vector<string>> featureList = stepDataObj.stepFeatureList;
-    /*
+   /*
     for (auto key : featureList) // Prints the adv faces with their sub features
     {
         cout << "***********************************************************";
         cout << "\n" << "Key: "<< key.first << " Results\n\n";
+        cout << key.second.size() << "\n";
         for (auto it = key.second.begin(); it != key.second.end(); ++it)
         {
             cout << *it << "\n";
         }
         cout << "***********************************************************\n";
+    } */
+    for (auto key : featureList) 
+    {
+        cout << "***********************************************************";
+        cout << "\n" << "Key: " << key.first << " Results\n\n";
+        for (auto it = key.second.begin(); it != key.second.end(); ++it)
+        {
+            currentLine = *it;
+            if (currentLine.find(" VERTEX_POINT ") != string::npos)
+            {
+                cout << currentLine << "\n";
+            }
+        }
+        cout << "***********************************************************\n";
     }
-    */
    //writeToFile(stepDataObj);
-    std::cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
     FeatureFinder highLevelFeatureObj;
     highLevelFeatureObj.featureFinderController(stepDataObj);
     return 0;

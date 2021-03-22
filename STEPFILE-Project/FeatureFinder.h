@@ -3,11 +3,13 @@
 class FeatureFinder
 {
 private:
-	void findMinMax(STEP stepDataObj);
 	long double minX, maxX;
 	long double minY, maxY;
 	long double minZ, maxZ;
 
+	void findMinMax(STEP stepDataObj);
+	void createCubeToFit(FeatureFinder mainObj);
+	void facesThatTouch(STEP stepDataObj);
 
 public:
 	void featureFinderController(STEP stepDataObj);

@@ -9,15 +9,16 @@ class STEP
 private:
 	map<string, string> stepDataList;
 
-	void extractFeatures();
+	void extractFeatures(string inputFile);
 	void checkDifference();
 
 public:	
 	vector<string> headerLines;
 	set<string> diffLines;
 	map<string, vector<string>> stepFeatureList;
+	map<string, vector<string>> vertexPoints;
 
-	void stepController();
+	void stepController(string inputFile);
 	
 };
 

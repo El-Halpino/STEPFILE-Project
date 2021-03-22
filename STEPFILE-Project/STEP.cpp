@@ -41,7 +41,7 @@ void STEP::checkDifference()
 }
 
 // This method reads a step file and creates a datalist and feature list
-void STEP::extractFeatures()
+void STEP::extractFeatures(string inputFile)
 {
 	// Declare Variables and DS
 	string currentLine;
@@ -52,14 +52,19 @@ void STEP::extractFeatures()
 	ifstream StepFile;
 
 	map<string, vector<string>> featureList;
+	map<string, vector<string>> vPoints;
 	vector<string> foundlines;
 	vector<string> nextlines;
+	set<string> subFeatures;
 	bool numberFound = false;
 	bool lastNumberFound = false;
 	bool header = true;
+	bool vPoint = false;
+
+	string FilePath = ("C:\\work\\STEP\\" + inputFile + ".step");
 
 	std::cout << "Extracting Features... \n";
-	StepFile.open("C:\\work\\STEP\\L_Bracket_v1.STEP"); // Read STEP File
+	StepFile.open(FilePath.c_str()); // Read STEP File
 	if (!StepFile)
 	{
 		std::cout << "Unable to open STEP File\n";
@@ -101,7 +106,6 @@ void STEP::extractFeatures()
 				if (currentLine.find(";") != string::npos) // If it is the last line (end is denoted by ";")
 				{
 					multipleLineSTEP.append(currentLine);
-					//cout << "Multiple Line STEP " << multipleLineSTEP << "\n\n";
 					dataList.insert({ stepNumber, multipleLineSTEP });
 					multipleLineSTEP = "";
 				}
@@ -141,17 +145,22 @@ void STEP::extractFeatures()
 		for (auto item : faces) // Iterate through adv faces
 		{
 			currentLine = item.substr(0, item.find(" ")); // CurrentLine used to identify the current adv face
-			std::cout << "\nNEW FACE " << " " << item << "\n";
+			//std::cout << "\nNEW FACE " << " " << item << "\n";
 			nextlines.insert(nextlines.begin(), item); // Must insert the adv face at the start of the list
 
 			while (lastNumberFound == false) // runs until last number is found
 			{
 				for (auto nLine : nextlines) // cycles through set nextlines
 				{
+
+					if (nLine.find(" VERTEX_POINT ") != string::npos)
+					{
+						vPoint = true;
+					}
+
 					string subnLine = nLine.substr(nLine.find(" "), nLine.size()); // get sub string to avoid reading step's own ID
 					for (char& ch : subnLine) // Cycles through each character in subnLine
 					{
-						
 						if (numberFound == true)
 						{
 							if (isdigit(ch))
@@ -163,6 +172,13 @@ void STEP::extractFeatures()
 								//std::cout << "\nFound : #" + stepNumber;
 								foundlines.push_back(dataList["#" + stepNumber]); // add found numbers to foundlines for next iteration
 								featureList[currentLine].push_back(dataList["#" + stepNumber]); // Add found step into currentline's list of steps
+
+								if (vPoint == true)
+								{
+									vPoints[currentLine].push_back(dataList["#" + stepNumber]);
+									vPoint = false;
+								}
+
 								numberFound = false;
 								stepNumber = "";
 							}
@@ -185,14 +201,34 @@ void STEP::extractFeatures()
 			lastNumberFound = false;
 		}
 	}
+
+	// Remove Duplicates
+	vector<string>::iterator rd;
+	vector<string> v;
+	for(auto item : featureList)
+	{
+		v = item.second;
+		sort(v.begin(), v.end());
+		rd = unique(v.begin(), v.end());
+		v.resize(distance(v.begin(), rd));
+		featureList[item.first] = v;
+	}
+	for (auto item : vPoints)
+	{
+		v = item.second;
+		sort(v.begin(), v.end());
+		rd = unique(v.begin(), v.end());
+		v.resize(distance(v.begin(), rd));
+		vPoints[item.first] = v;
+	}
 	STEP::stepFeatureList = featureList;
+	STEP::vertexPoints = vPoints;
 	std::cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
 	checkDifference();
 }
 
 // This method controls the step class
-void STEP::stepController()
+void STEP::stepController(string inputFile)
 {
-	std::cout << "Welcome to the STEP Class\n";
-	extractFeatures();
+	extractFeatures(inputFile);
 }
