@@ -20,14 +20,14 @@ void writeToFile(STEP stepDataObj)
     vector<string> header = stepDataObj.headerLines;
     set<string> compileLines = stepDataObj.diffLines;
     set<string> featureLines;
-    /*
+    
     for (auto key : featureList)
     {
         for (auto it = key.second.begin(); it != key.second.end(); ++it)
         {
             featureLines.insert(*it);
         }
-    } */
+    } 
     //ofstream TestFile("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\testfile3.step"); // File created and opened
     // Writes each face into separate files
     /*for (auto key : featureList)
@@ -88,7 +88,7 @@ int main()
     auto start = chrono::steady_clock::now();// Start Clock
     stepDataObj.stepController(inputFile);
     auto end = chrono::steady_clock::now();// End Clock
-    std::cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
+    cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
     cout << "\nFinished Extracting Features\n";
     system("pause");
     string currentLine;

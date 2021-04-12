@@ -17,6 +17,7 @@ public:
 	set<string> diffLines;
 	map<string, vector<string>> stepFeatureList;
 	map<string, vector<string>> vertexPoints;
+	map<string, vector<string>> cartesianPoints;
 
 	void stepController(string inputFile);
 	

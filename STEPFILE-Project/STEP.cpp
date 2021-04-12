@@ -53,6 +53,7 @@ void STEP::extractFeatures(string inputFile)
 
 	map<string, vector<string>> featureList;
 	map<string, vector<string>> vPoints;
+	map<string, vector<string>> cartPoints;
 	vector<string> foundlines;
 	vector<string> nextlines;
 	set<string> subFeatures;
@@ -152,10 +153,13 @@ void STEP::extractFeatures(string inputFile)
 			{
 				for (auto nLine : nextlines) // cycles through set nextlines
 				{
-
 					if (nLine.find(" VERTEX_POINT ") != string::npos)
 					{
 						vPoint = true;
+					}
+					else if (nLine.find(" CARTESIAN_POINT ") != string::npos)
+					{
+						cartPoints[currentLine].push_back(nLine);
 					}
 
 					string subnLine = nLine.substr(nLine.find(" "), nLine.size()); // get sub string to avoid reading step's own ID
@@ -172,13 +176,11 @@ void STEP::extractFeatures(string inputFile)
 								//std::cout << "\nFound : #" + stepNumber;
 								foundlines.push_back(dataList["#" + stepNumber]); // add found numbers to foundlines for next iteration
 								featureList[currentLine].push_back(dataList["#" + stepNumber]); // Add found step into currentline's list of steps
-
 								if (vPoint == true)
 								{
 									vPoints[currentLine].push_back(dataList["#" + stepNumber]);
 									vPoint = false;
 								}
-
 								numberFound = false;
 								stepNumber = "";
 							}
@@ -221,8 +223,17 @@ void STEP::extractFeatures(string inputFile)
 		v.resize(distance(v.begin(), rd));
 		vPoints[item.first] = v;
 	}
+	for (auto item : cartPoints)
+	{
+		v = item.second;
+		sort(v.begin(), v.end());
+		rd = unique(v.begin(), v.end());
+		v.resize(distance(v.begin(), rd));
+		cartPoints[item.first] = v;
+	}
 	STEP::stepFeatureList = featureList;
 	STEP::vertexPoints = vPoints;
+	STEP::cartesianPoints = cartPoints;
 	std::cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
 	checkDifference();
 }
