@@ -11,6 +11,7 @@ private:
 
 	void extractFeatures(string inputFile);
 	void checkDifference();
+	void checkFacesThatTouch();
 
 public:	
 	vector<string> headerLines;
@@ -18,6 +19,7 @@ public:
 	map<string, vector<string>> stepFeatureList;
 	map<string, vector<string>> vertexPoints;
 	map<string, vector<string>> cartesianPoints;
+	map<string, vector<string>> touchingFaces;
 
 	void stepController(string inputFile);
 	

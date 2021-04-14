@@ -89,22 +89,10 @@ int main()
     stepDataObj.stepController(inputFile);
     auto end = chrono::steady_clock::now();// End Clock
     cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
-    cout << "\nFinished Extracting Features\n";
     system("pause");
     string currentLine;
     map<string, vector<string>> featureList = stepDataObj.stepFeatureList;
-   /*
-    for (auto key : featureList) // Prints the adv faces with their sub features
-    {
-        cout << "***********************************************************";
-        cout << "\n" << "Key: "<< key.first << " Results\n\n";
-        cout << key.second.size() << "\n";
-        for (auto it = key.second.begin(); it != key.second.end(); ++it)
-        {
-            cout << *it << "\n";
-        }
-        cout << "***********************************************************\n";
-    } */
+    /*
     for (auto key : featureList) 
     {
         cout << "***********************************************************";
@@ -119,6 +107,7 @@ int main()
         }
         cout << "***********************************************************\n";
     }
+    */
    //writeToFile(stepDataObj);
     FeatureFinder highLevelFeatureObj;
     highLevelFeatureObj.featureFinderController(stepDataObj);

@@ -8,11 +8,10 @@ private:
 	long double minZ, maxZ;
 
 	void findMinMax(STEP stepDataObj);
-	void createCubeToFit(FeatureFinder mainObj, FeatureFinder cubeFinder, STEP cubeObj);
-	void facesThatTouch(STEP stepDataObj);
+	void createCubeToFit(FeatureFinder mainObj);
 	
 public:
 	void featureFinderController(STEP stepDataObj);
-
+	map<string, vector<string>> touchingFaces;
 };
 

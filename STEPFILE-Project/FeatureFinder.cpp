@@ -1,7 +1,6 @@
 // This class will be used to identify high level features
 
 // make list of faces that touch
-
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -93,6 +92,7 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
                 count = 0;
         }
     }
+    /*
     cout << "\n\n";
     cout << setprecision(24);
     cout << "Max X Value: " << maxX << "\n";
@@ -100,17 +100,11 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
     cout << "Max Y Value: " << maxY << "\n";
     cout << "Min Y Value: " << minY << "\n";
     cout << "Max Z Value: " << maxZ << "\n";
-    cout << "Min Z Value: " << minZ << "\n";
-}
-
-void FeatureFinder::facesThatTouch(STEP stepDataObj)
-{
-
+    cout << "Min Z Value: " << minZ << "\n"; */
 }
 
 void writeFile(STEP cubeObj)
 {
-
     vector<string> header = cubeObj.headerLines;
     set<string> compileLines = cubeObj.diffLines;
     set<string> featureLines;
@@ -139,8 +133,13 @@ void writeFile(STEP cubeObj)
     TestFile.close(); // file closed
 }
 
-void FeatureFinder::createCubeToFit(FeatureFinder mainObjFinder, FeatureFinder cubeFinder, STEP cubeObj)
+void FeatureFinder::createCubeToFit(FeatureFinder mainObjFinder)
 {
+    STEP cubeObj; // Create Cube Objects
+    FeatureFinder cubeFinder;
+    cubeObj.stepController("Cube"); // Read cube and fill variables
+    cubeFinder.findMinMax(cubeObj); // Find min / max of cube
+
     map < string, vector<string>> features = cubeObj.stepFeatureList;
     string number = "";
     string maxX = to_string(mainObjFinder.maxX);
@@ -161,7 +160,7 @@ void FeatureFinder::createCubeToFit(FeatureFinder mainObjFinder, FeatureFinder c
 
     for (auto &item : cubeObj.stepFeatureList) // cycles through each set of vectors
     {
-        std::cout << "\n\n" << item.first << "\n\n";
+        //std::cout << "\n\n" << item.first << "\n\n";
         for (auto &item2 : item.second) // cycles through each element of the vector
         {
             for (auto searchItem : cubeObj.cartesianPoints) // cycles through each set of vectors
@@ -239,7 +238,7 @@ void FeatureFinder::createCubeToFit(FeatureFinder mainObjFinder, FeatureFinder c
                             }
                         }
                         count = 0;
-                        std::cout << "REPLACED: " << item2 << "\n";
+                        //std::cout << "REPLACED: " << item2 << "\n";
                     }
                     else {
                         continue;
@@ -254,11 +253,8 @@ void FeatureFinder::createCubeToFit(FeatureFinder mainObjFinder, FeatureFinder c
 void FeatureFinder::featureFinderController(STEP stepDataObj)
 {
     cout << "Welcome to the Feature Finder\n";
-    STEP cubeObj;
-    FeatureFinder cubeFinder;
     FeatureFinder mainObjFinder;
-    cubeObj.stepController("Cube");  
     mainObjFinder.findMinMax(stepDataObj);
-    cubeFinder.findMinMax(cubeObj);
-    createCubeToFit(mainObjFinder, cubeFinder, cubeObj);
+    createCubeToFit(mainObjFinder);
+
 }

@@ -238,8 +238,50 @@ void STEP::extractFeatures(string inputFile)
 	checkDifference();
 }
 
+void STEP::checkFacesThatTouch()
+{ // 2 faces touch if they share a vertex point with the same geometrical location (X,Y,Z)
+	map<string, vector<string>> touchingFaces;
+	string subLine, subLine1;
+	for (auto step : STEP::vertexPoints)
+	{
+		for (auto step2 : STEP::vertexPoints)
+		{
+			if (step != step2)
+			{
+				for (auto item : step.second)
+				{
+					subLine = item.substr(item.find(" "), item.size());
+					for (auto item2 : step2.second)
+					{
+						subLine1 = item2.substr(item2.find(" "), item2.size());
+						if (subLine == subLine1)
+						{
+							touchingFaces[step.first].push_back(step2.first); 
+							goto next;
+						}
+					}
+				}
+			}
+		next:
+			continue;
+		}
+	}
+	/*
+	for (auto item : touchingFaces)
+	{
+		cout << "Face: " << item.first	 << "\n";
+		for (auto item2 : item.second)
+		{
+			cout << item2 << "\n";
+		}
+	}
+	*/
+}
+
 // This method controls the step class
 void STEP::stepController(string inputFile)
 {
+	cout << "File name: " << inputFile << "\n";
 	extractFeatures(inputFile);
+	checkFacesThatTouch();
 }
