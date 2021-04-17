@@ -84,7 +84,7 @@ int main()
     cout << "STEP File Location: C:\\work\\STEP\\\n";
     cout << "Enter the name of the STEP file\n";
     //cin >> inputFile;
-    inputFile = "L_Bracket_v1";
+    inputFile = "CubeSlot";
     auto start = chrono::steady_clock::now();// Start Clock
     stepDataObj.stepController(inputFile);
     auto end = chrono::steady_clock::now();// End Clock
@@ -92,7 +92,7 @@ int main()
     system("pause");
     string currentLine;
     map<string, vector<string>> featureList = stepDataObj.stepFeatureList;
-    /*
+   /*
     for (auto key : featureList) 
     {
         cout << "***********************************************************";
@@ -100,7 +100,7 @@ int main()
         for (auto it = key.second.begin(); it != key.second.end(); ++it)
         {
             currentLine = *it;
-            if (currentLine.find(" VERTEX_POINT ") != string::npos)
+            if (currentLine.find(" EDGE_CURVE ") != string::npos)
             {
                 cout << currentLine << "\n";
             }

@@ -127,20 +127,6 @@ void STEP::extractFeatures(string inputFile)
 		StepFile.close();
 		std::cout << "STEP File Closed\n";
 
-		/*
-		cout << "Adv Faces Found\n";
-		for (auto it = faces.begin(); it != faces.end(); it++)
-		{
-			std::cout << (*it) << "\n";
-		}
-		cout << "Data List; ";
-		for (auto item : dataList)
-		{
-			cout << item.first << " " << item.second << "\n";
-		}
-		auto it = dataList.find("#36");
-		std::cout << it->second;
-		*/
 
 		// Store features with sub features next
 		for (auto item : faces) // Iterate through adv faces
@@ -153,6 +139,10 @@ void STEP::extractFeatures(string inputFile)
 			{
 				for (auto nLine : nextlines) // cycles through set nextlines
 				{
+					if (nLine.find(" EDGE_CURVE ") != string::npos)
+					{
+						STEP::edgeCurves[currentLine].push_back(nLine);
+					}
 					if (nLine.find(" VERTEX_POINT ") != string::npos)
 					{
 						vPoint = true;
@@ -266,6 +256,7 @@ void STEP::checkFacesThatTouch()
 			continue;
 		}
 	}
+	STEP::touchingFaces = touchingFaces;
 	/*
 	for (auto item : touchingFaces)
 	{
@@ -278,10 +269,84 @@ void STEP::checkFacesThatTouch()
 	*/
 }
 
+void STEP::findEdgeCurves()
+{
+	string subLine, stepNumber, currentLine, edgeNumber;
+	vector<string> foundlines, nextLines;
+	bool numberFound, lastNumberFound;
+	numberFound = false;
+	lastNumberFound = false;
+
+	for (auto key : STEP::edgeCurves) // Cycle through faces
+	{
+		for (auto item : key.second) //  Cycle through edge curves in current face
+		{
+			edgeNumber = item.substr(0 , item.find(" "));
+			cout <<"Edge : " << STEP::stepDataList[edgeNumber] << "\n";
+			nextLines.insert(nextLines.begin(), item); // Must be inserted at the beginning
+			while (lastNumberFound == false)
+			{
+				for (auto nextL : nextLines)
+				{
+					subLine = nextL.substr(nextL.find(" "), nextL.size()); // sub string to avoid reading current step number
+					for (char& ch : subLine) // cycle through chars in current line
+					{
+						//
+						if (numberFound == true)
+						{
+							if (isdigit(ch))
+							{
+								stepNumber += ch;
+							}
+							else
+							{
+								foundlines.push_back(STEP::stepDataList["#" + stepNumber]);
+								STEP::edgeCurveGeometry[key.first][edgeNumber].push_back(STEP::stepDataList["#" + stepNumber]);
+								numberFound = false;
+								stepNumber = "";
+							}
+						}
+						else if (ch == '#')
+						{
+							numberFound = true;
+						}
+						//
+					}
+					if (foundlines.size() == 0)
+					{
+						lastNumberFound = true;
+					}
+				}
+				nextLines.clear();
+				for (int i = 0; i < foundlines.size(); i++)
+					nextLines.push_back(foundlines[i]);
+				foundlines.clear();
+			}
+			lastNumberFound = false;
+		}
+	}
+	
+	/*
+	for (auto key : edgeCurveGeometry)
+	{
+		cout << "\n\n\nFace : " << key.first << "\n";
+		for (auto edge : edgeCurveGeometry[key.first])
+		{
+			cout << "Edge : \n" << stepDataList[edge.first] << "\n";
+			for (auto item : edgeCurveGeometry[key.first][edge.first])
+			{
+				cout << item << "\n";
+			}
+		}
+	}
+	*/
+}
+
 // This method controls the step class
 void STEP::stepController(string inputFile)
 {
 	cout << "File name: " << inputFile << "\n";
 	extractFeatures(inputFile);
 	checkFacesThatTouch();
+	findEdgeCurves();
 }

@@ -8,10 +8,12 @@ class STEP
 {
 private:
 	map<string, string> stepDataList;
+	map<string, vector<string>> edgeCurves;
 
 	void extractFeatures(string inputFile);
 	void checkDifference();
 	void checkFacesThatTouch();
+	void findEdgeCurves();
 
 public:	
 	vector<string> headerLines;
@@ -20,8 +22,8 @@ public:
 	map<string, vector<string>> vertexPoints;
 	map<string, vector<string>> cartesianPoints;
 	map<string, vector<string>> touchingFaces;
+	map<string, map<string, vector<string>>> edgeCurveGeometry;
 
-	void stepController(string inputFile);
-	
+	void stepController(string inputFile);	
 };
 

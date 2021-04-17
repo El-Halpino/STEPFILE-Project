@@ -1,6 +1,4 @@
 // This class will be used to identify high level features
-
-// make list of faces that touch
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -100,7 +98,8 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
     cout << "Max Y Value: " << maxY << "\n";
     cout << "Min Y Value: " << minY << "\n";
     cout << "Max Z Value: " << maxZ << "\n";
-    cout << "Min Z Value: " << minZ << "\n"; */
+    cout << "Min Z Value: " << minZ << "\n"; 
+    */
 }
 
 void writeFile(STEP cubeObj)
@@ -133,28 +132,27 @@ void writeFile(STEP cubeObj)
     TestFile.close(); // file closed
 }
 
-void FeatureFinder::createCubeToFit(FeatureFinder mainObjFinder)
+void FeatureFinder::createCubeToFit(STEP cubeObj)
 {
-    STEP cubeObj; // Create Cube Objects
     FeatureFinder cubeFinder;
     cubeObj.stepController("Cube"); // Read cube and fill variables
     cubeFinder.findMinMax(cubeObj); // Find min / max of cube
 
     map < string, vector<string>> features = cubeObj.stepFeatureList;
     string number = "";
-    string maxX = to_string(mainObjFinder.maxX);
-    string maxY = to_string(mainObjFinder.maxY);
-    string maxZ = to_string(mainObjFinder.maxZ);
-    string minX = to_string(mainObjFinder.minX);
-    string minY = to_string(mainObjFinder.minY);
-    string minZ = to_string(mainObjFinder.minZ);
+    string maxX = to_string(FeatureFinder::maxX);
+    string maxY = to_string(FeatureFinder::maxY);
+    string maxZ = to_string(FeatureFinder::maxZ);
+    string minX = to_string(FeatureFinder::minX);
+    string minY = to_string(FeatureFinder::minY);
+    string minZ = to_string(FeatureFinder::minZ);
+    string stepNumber;
+    string stepNumber1;
+    string newValue;
     bool numberFound = false;
     long double placeHolder;
     int count = 0;
     char start;
-    string stepNumber;
-    string stepNumber1;
-    string newValue;
 
     // #796 = CARTESIAN_POINT ( 'NONE',  ( 28.20906519726944239, 20.00000000000000000, 13.79214587795902425 ) ) ;
 
@@ -250,11 +248,21 @@ void FeatureFinder::createCubeToFit(FeatureFinder mainObjFinder)
     writeFile(cubeObj);
 }
 
+void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj) 
+{
+    // Identify a slot 
+
+    // identify a cyclindrical hole
+
+    // Identify a square hole
+    
+}
+
 void FeatureFinder::featureFinderController(STEP stepDataObj)
 {
     cout << "Welcome to the Feature Finder\n";
-    FeatureFinder mainObjFinder;
-    mainObjFinder.findMinMax(stepDataObj);
-    createCubeToFit(mainObjFinder);
-
+    findMinMax(stepDataObj);
+    STEP cubeObj; // Create Cube Objects
+    createCubeToFit(cubeObj);
+    identifyHighLevelFeatures(stepDataObj, cubeObj);
 }
