@@ -84,7 +84,7 @@ int main()
     cout << "STEP File Location: C:\\work\\STEP\\\n";
     cout << "Enter the name of the STEP file\n";
     //cin >> inputFile;
-    inputFile = "CubeSlot";
+    inputFile = "CubeSQtopCut";
     auto start = chrono::steady_clock::now();// Start Clock
     stepDataObj.stepController(inputFile);
     auto end = chrono::steady_clock::now();// End Clock

@@ -282,7 +282,7 @@ void STEP::findEdgeCurves()
 		for (auto item : key.second) //  Cycle through edge curves in current face
 		{
 			edgeNumber = item.substr(0 , item.find(" "));
-			cout <<"Edge : " << STEP::stepDataList[edgeNumber] << "\n";
+			//cout <<"Edge : " << STEP::stepDataList[edgeNumber] << "\n";
 			nextLines.insert(nextLines.begin(), item); // Must be inserted at the beginning
 			while (lastNumberFound == false)
 			{

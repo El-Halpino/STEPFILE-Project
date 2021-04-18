@@ -10,12 +10,13 @@ using namespace std;
 void FeatureFinder::findMinMax(STEP stepDataObj)
 {                                       //          x                       y                    z
     // #796 = CARTESIAN_POINT ( 'NONE',  ( 28.20906519726944239, 20.00000000000000000, 13.79214587795902425 ) ) ;
-    FeatureFinder::minX = 0;
-    FeatureFinder::maxX = 0;
-    FeatureFinder::minY = 0;
-    FeatureFinder::maxY = 0;
-    FeatureFinder::minZ = 0;
-    FeatureFinder::maxZ = 0;
+    FeatureFinder::minX = 10000000;
+    FeatureFinder::maxX = -10000000;
+    FeatureFinder::minY = 10000000;
+    FeatureFinder::maxY = -10000000;
+    FeatureFinder::minZ = 10000000;
+    FeatureFinder::maxZ = -10000000;
+    FeatureFinder::maxXorg, minXorg, maxYorg, minYorg, maxZorg, minZorg;
     string currentLine;
     string number;
     long double placeHolder;
@@ -45,30 +46,36 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
                                 if (placeHolder < minX)
                                 {
                                     minX = placeHolder;
+                                    minXorg = number;
                                 }
                                 else if (placeHolder > maxX)
                                 {
                                     maxX = placeHolder;
+                                    maxXorg = number;
                                 }
                                 break;
                             case 1: // Y
                                 if (placeHolder < minY) 
                                 {
                                     minY = placeHolder;
+                                    minYorg = number;
                                 }
                                 else if (placeHolder > maxY) 
                                 {
                                     maxY = placeHolder;
+                                    maxYorg = number;
                                 }
                                 break;
                             case 2: // Z
                                 if (placeHolder < minZ) 
                                 {
                                     minZ = placeHolder;
+                                    minZorg = number;
                                 }
                                 else if (placeHolder > maxZ) 
                                 {
                                     maxZ = placeHolder;
+                                    maxZorg = number;
                                 }
                                 break;
                             }
@@ -90,16 +97,16 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
                 count = 0;
         }
     }
-    /*
+    ///*
     cout << "\n\n";
-    cout << setprecision(24);
+    cout << setprecision(19);
     cout << "Max X Value: " << maxX << "\n";
     cout << "Min X Value: " << minX << "\n";
     cout << "Max Y Value: " << maxY << "\n";
     cout << "Min Y Value: " << minY << "\n";
     cout << "Max Z Value: " << maxZ << "\n";
     cout << "Min Z Value: " << minZ << "\n"; 
-    */
+    //*/
 }
 
 void writeFile(STEP cubeObj)
@@ -132,10 +139,9 @@ void writeFile(STEP cubeObj)
     TestFile.close(); // file closed
 }
 
-void FeatureFinder::createCubeToFit(STEP cubeObj)
+void FeatureFinder::createCubeToFit(STEP cubeObj, STEP stepDataObj)
 {
     FeatureFinder cubeFinder;
-    cubeObj.stepController("Cube"); // Read cube and fill variables
     cubeFinder.findMinMax(cubeObj); // Find min / max of cube
 
     map < string, vector<string>> features = cubeObj.stepFeatureList;
@@ -184,36 +190,36 @@ void FeatureFinder::createCubeToFit(STEP cubeObj)
                                     case 0: // X
                                         if (placeHolder == cubeFinder.minX)
                                         {
-                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), minX);
+                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), FeatureFinder::minXorg);
                                             item2 = newValue;
                                         }
                                         else if (placeHolder == cubeFinder.maxX)
                                         {
-                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), maxX);
+                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), FeatureFinder::maxXorg);
                                             item2 = newValue;
                                         }
                                         break;
                                     case 1: // Y
                                         if (placeHolder == cubeFinder.minY)
                                         {
-                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), minY);
+                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), FeatureFinder::minYorg);
                                             item2 = newValue;
                                         }
                                         else if (placeHolder == cubeFinder.maxY)
                                         {
-                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), maxY);
+                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), FeatureFinder::maxYorg);
                                             item2 = newValue;
                                         }
                                         break;
                                     case 2: // Z
                                         if (placeHolder == cubeFinder.minZ)
                                         {
-                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), minZ);
+                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), FeatureFinder::minZorg);
                                             item2 = newValue;
                                         }
                                         else if (placeHolder == cubeFinder.maxZ)
                                         {
-                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), maxZ);
+                                            newValue = item2.replace(item2.find(start, item2.find(number)), number.size(), FeatureFinder::maxZorg);
                                             item2 = newValue;
                                         }
                                         break;
@@ -245,13 +251,97 @@ void FeatureFinder::createCubeToFit(STEP cubeObj)
             }
         }
     }
+
     writeFile(cubeObj);
+    identifyHighLevelFeatures(stepDataObj, cubeObj);
 }
 
 void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj) 
 {
-    // Identify a slot 
+    /*
+    map<string, vector<string>> touchingFaces;
+	map<string, map<string, vector<string>>> edgeCurveGeometry;
+    Adv face, Edge, Sub-features
+    */
 
+    // First, compare the cube created to see what points are not shared.
+    set<string> linesNotShared;
+    string subLine, subLine1, subSearch;
+    int count = 0;
+
+    for (auto advFace : stepDataObj.stepFeatureList)
+    {
+        for (auto vPoint : advFace.second)
+        {
+            for (auto searchItem : stepDataObj.vertexPoints[advFace.first])
+            {
+                subSearch = searchItem.substr(0, searchItem.find(" "));
+                if (subSearch == vPoint.substr(0, vPoint.find(" ")))
+                {
+                    subLine = vPoint.substr(vPoint.find("("), vPoint.size());
+                    //cout << "\n\n" << vPoint << "\n\n\n";
+                    for (auto advFace1 : cubeObj.vertexPoints)
+                    {
+                        for (auto vPoint2 : advFace1.second)
+                        {
+                            //cout << vPoint2 << "\n";
+                            subLine1 = vPoint2.substr(vPoint2.find("("), vPoint2.size());
+                            if (subLine == subLine1)
+                            {
+                                count++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+                    }
+                    if (count == 0)
+                    {
+                        linesNotShared.insert(vPoint);
+                    }
+                    else {
+                        count = 0;
+                    }  
+                }
+                else {
+                    continue;
+                }
+            }
+        }
+    }
+    cout << "Points not shared: " << linesNotShared.size() << "\n";
+    for (auto item : linesNotShared)
+    {
+        cout << item << "\n";
+    }
+
+    // Identify a slot 
+    /*
+    for (auto advFace : stepDataObj.edgeCurveGeometry) // iterate faces
+    {
+        for (auto advFace1 : stepDataObj.edgeCurveGeometry) // iterate other faces for comparison
+        {
+            if (advFace != advFace1)
+            {
+                for (auto edge : stepDataObj.edgeCurveGeometry[advFace.first]) // iterate edges
+                {
+                    for (auto edge1 : stepDataObj.edgeCurveGeometry[advFace1.first])
+                    {
+                        for (auto item : stepDataObj.edgeCurveGeometry[advFace.first][edge.first]) // iterate items
+                        {
+                            //cout << "ITEM1: " << item << "\n\n";
+                            for (auto item1 : stepDataObj.edgeCurveGeometry[advFace1.first][edge1.first])
+                            {
+                                //cout << "ITEM2**********\n";
+                            }
+                        }
+                    } // end edge1
+                } // end edge
+            }
+        } // end advFace1
+            
+    } // end advFace
+    */
     // identify a cyclindrical hole
 
     // Identify a square hole
@@ -263,6 +353,6 @@ void FeatureFinder::featureFinderController(STEP stepDataObj)
     cout << "Welcome to the Feature Finder\n";
     findMinMax(stepDataObj);
     STEP cubeObj; // Create Cube Objects
-    createCubeToFit(cubeObj);
-    identifyHighLevelFeatures(stepDataObj, cubeObj);
+    cubeObj.stepController("Cube"); // Read cube and fill variables
+    createCubeToFit(cubeObj, stepDataObj);
 }
