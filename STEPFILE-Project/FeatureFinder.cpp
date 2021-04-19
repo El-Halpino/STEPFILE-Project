@@ -97,7 +97,7 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
                 count = 0;
         }
     }
-    ///*
+    /*
     cout << "\n\n";
     cout << setprecision(19);
     cout << "Max X Value: " << maxX << "\n";
@@ -106,7 +106,7 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
     cout << "Min Y Value: " << minY << "\n";
     cout << "Max Z Value: " << maxZ << "\n";
     cout << "Min Z Value: " << minZ << "\n"; 
-    //*/
+    */
 }
 
 void writeFile(STEP cubeObj)
@@ -263,11 +263,10 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
 	map<string, map<string, vector<string>>> edgeCurveGeometry;
     Adv face, Edge, Sub-features
     */
-
     // First, compare the cube created to see what points are not shared.
     set<string> linesNotShared;
-    string subLine, subLine1, subSearch;
-    int count = 0;
+    string subLine, subLine1, subSearch, subSearch1;
+    bool found = false;
 
     for (auto advFace : stepDataObj.stepFeatureList)
     {
@@ -280,27 +279,35 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
                 {
                     subLine = vPoint.substr(vPoint.find("("), vPoint.size());
                     //cout << "\n\n" << vPoint << "\n\n\n";
-                    for (auto advFace1 : cubeObj.vertexPoints)
+                    for (auto advFace1 : cubeObj.stepFeatureList)
                     {
                         for (auto vPoint2 : advFace1.second)
                         {
-                            //cout << vPoint2 << "\n";
-                            subLine1 = vPoint2.substr(vPoint2.find("("), vPoint2.size());
-                            if (subLine == subLine1)
+                            for (auto searchItem2 : cubeObj.vertexPoints[advFace1.first])
                             {
-                                count++;
+                                subSearch1 = searchItem2.substr(0, searchItem2.find(" "));
+                                if (subSearch1 == vPoint2.substr(0, vPoint2.find(" ")))
+                                {
+                                    //cout << vPoint2 << "\n";
+                                    subLine1 = vPoint2.substr(vPoint2.find("("), vPoint2.size());
+                                    if (subLine == subLine1)
+                                    {
+                                        found = true;
+                                    }
+                                    else {
+                                        continue;
+                                    }
+                                }
                             }
-                            else {
-                                continue;
-                            }
+                                
                         }
                     }
-                    if (count == 0)
+                    if (found == false) // Current point has not been found, add to list
                     {
                         linesNotShared.insert(vPoint);
                     }
                     else {
-                        count = 0;
+                        found = false;
                     }  
                 }
                 else {
@@ -309,11 +316,37 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
             }
         }
     }
+    
     cout << "Points not shared: " << linesNotShared.size() << "\n";
     for (auto item : linesNotShared)
     {
         cout << item << "\n";
     }
+    // Which faces do these points belong to?
+    map<string, set<string>> points;
+    for (auto advFace : stepDataObj.stepFeatureList)
+    {
+        for (auto item : linesNotShared)
+        {
+            for (auto step : advFace.second)
+            {
+                if (item == step)
+                {
+                    points[advFace.first].insert(item);
+                }
+            }
+        }
+    }
+    for (auto item : points)
+    {
+        cout << item.first << "\n";
+        for (auto item2 : item.second)
+        {
+            cout << item2 << "\n";
+        }
+    }
+
+
 
     // Identify a slot 
     /*

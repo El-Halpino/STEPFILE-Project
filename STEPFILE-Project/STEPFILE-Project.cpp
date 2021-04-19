@@ -30,7 +30,8 @@ void writeToFile(STEP stepDataObj)
     } 
     //ofstream TestFile("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\testfile3.step"); // File created and opened
     // Writes each face into separate files
-    /*for (auto key : featureList)
+    ///*
+    for (auto key : featureList)
     {
         cout << "\nWriting File: " << key.first << "\n";
         string FilePath = ("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\" + key.first + ".step");
@@ -56,7 +57,7 @@ void writeToFile(STEP stepDataObj)
             AdvFace << "ENDSEC;\nEND - ISO - 10303 - 21;";
             AdvFace.close();
         }
-    } */
+    } //*/
     /* // Writes whole object into one file
     cout << "\nCurrent File: \n\n";
     for (auto line1 : header)
@@ -108,7 +109,7 @@ int main()
         cout << "***********************************************************\n";
     }
     */
-   //writeToFile(stepDataObj);
+    writeToFile(stepDataObj);
     FeatureFinder highLevelFeatureObj;
     highLevelFeatureObj.featureFinderController(stepDataObj);
     return 0;
