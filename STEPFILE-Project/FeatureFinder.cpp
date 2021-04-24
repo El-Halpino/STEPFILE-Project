@@ -256,14 +256,134 @@ void FeatureFinder::createCubeToFit(STEP cubeObj, STEP stepDataObj)
     identifyHighLevelFeatures(stepDataObj, cubeObj);
 }
 
+bool isEqual(string pointOne , string pointTwo)
+{
+    string oneX, oneY, oneZ;
+    string twoX, twoY, twoZ;
+    string number;
+    int count = 0;
+    bool numberFound = false;
+    for (auto ch : pointOne)
+    {
+        if (numberFound == true)
+        {
+            if (ch == ',' || ch == ' ')
+            {
+                switch (count)
+                {
+                case 0:
+                    oneX = number;
+                    break;
+                case 1:
+                    oneY = number;
+                    break;
+                case 2:
+                    oneZ = number;
+                    break;
+                }
+                count++;
+                number = "";
+                numberFound = false;
+            }
+            else
+            {
+                number += ch;
+            }
+        }
+        else if (ch == '-' || isdigit(ch))
+        {
+            numberFound = true;
+            number += ch;
+        }
+    }
+    count = 0;
+    for (auto ch : pointTwo)
+    {
+        if (numberFound == true)
+        {
+            if (ch == ',' || ch == ' ')
+            {
+                switch (count)
+                {
+                case 0:
+                    twoX = number;
+                    break;
+                case 1:
+                    twoY = number;
+                    break;
+                case 2:
+                    twoZ = number;
+                    break;
+                }
+                count++;
+                number = "";
+                numberFound = false;
+            }
+            else
+            {
+                number += ch;
+            }
+        }
+        else if (ch == '-' || isdigit(ch))
+        {
+            numberFound = true;
+            number += ch;
+        }
+    }
+    if (oneX.substr(0, 15) == twoX.substr(0, 15))
+    {
+        if (oneY.substr(0, 15) == twoY.substr(0, 15))
+        {
+            if (oneZ.substr(0, 15) == twoZ.substr(0, 15))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void write(map<int, set<string>> highLevelFeatures, STEP stepDataObj)
+{
+    vector<string> header = stepDataObj.headerLines;
+    set<string> compileLines = stepDataObj.diffLines;
+    set<string> featureLines;
+    // string FilePath = ("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\" + key.first + ".step");
+    // ofstream AdvFace(FilePath.c_str());
+    for (auto key : highLevelFeatures)
+    {
+        string name = to_string(key.first);
+        string FilePath = ("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\Object" + name + ".step");
+        ofstream TestFile(FilePath.c_str());
+        for (auto item : key.second)
+        {
+            for (auto item2 : stepDataObj.stepFeatureList[item])
+            {
+                featureLines.insert(item2);
+            }
+        }
+        for (auto line1 : header)
+        {
+            TestFile << line1 << "\n";
+        }
+        for (auto line2 : featureLines)
+        {
+            TestFile << line2 << "\n";
+        }
+        for (auto line3 : compileLines)
+        {
+            TestFile << line3 << "\n";
+        }
+        TestFile << "ENDSEC;\nEND - ISO - 10303 - 21;";
+        TestFile.close(); // file closed
+        featureLines.clear();
+    }
+}
+
+
 void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj) 
 {
-    /*
-    map<string, vector<string>> touchingFaces;
-	map<string, map<string, vector<string>>> edgeCurveGeometry;
-    Adv face, Edge, Sub-features
-    */
-    // First, compare the cube created to see what points are not shared.
+    // First, compare with the cube created to see what points are not shared.
     set<string> linesNotShared;
     string subLine, subLine1, subSearch, subSearch1;
     bool found = false;
@@ -288,13 +408,13 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
                                 subSearch1 = searchItem2.substr(0, searchItem2.find(" "));
                                 if (subSearch1 == vPoint2.substr(0, vPoint2.find(" ")))
                                 {
-                                    //cout << vPoint2 << "\n";
                                     subLine1 = vPoint2.substr(vPoint2.find("("), vPoint2.size());
-                                    if (subLine == subLine1)
+                                    if (isEqual(subLine, subLine1))
                                     {
                                         found = true;
                                     }
-                                    else {
+                                    else 
+                                    {
                                         continue;
                                     }
                                 }
@@ -316,8 +436,8 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
             }
         }
     }
-    
-    cout << "Points not shared: " << linesNotShared.size() << "\n";
+   
+    cout << "\n\n\nPoints not shared: " << linesNotShared.size() << "\n";
     for (auto item : linesNotShared)
     {
         cout << item << "\n";
@@ -337,48 +457,104 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
             }
         }
     }
-    for (auto item : points)
+    int pointCount = 0;
+    set <string> features;
+    // check if all of faces vPoints can be found in Points not shared
+    for (auto advFace : points)
     {
-        cout << item.first << "\n";
+        for (auto vPoint : stepDataObj.vertexPoints[advFace.first])
+        {
+            subLine = vPoint.substr(0, vPoint.find(" "));
+            for (auto vertex : linesNotShared)
+            {
+                subLine1 = vertex.substr(0, vertex.find(" "));
+                if (subLine == subLine1)
+                {
+                    pointCount++;
+                }
+                if (pointCount == stepDataObj.vertexPoints[advFace.first].size())
+                {
+                    features.insert(advFace.first);
+                    cout << advFace.first << "\n";
+                    goto NextPoint;
+                }
+            }
+        }
+    NextPoint:
+        pointCount = 0;
+        continue;
+    }
+    // check if advFaces found have faces that touch in common
+    set<string> features2 = features;
+    set<string> toremove;
+    map<int, set<string>> highLevelFeatures;
+    int objectNo = 0;
+
+    
+    for (auto face : features)
+    {
+        if (find(toremove.begin(), toremove.end(), face) != toremove.end())
+        {
+            continue;
+        }
+        else
+        {
+            highLevelFeatures[objectNo].insert(face);
+            toremove.insert(face);
+        }
+        if (features2.empty())
+        {
+            continue;
+        }
+        for (auto face2 : features2)
+        {
+            if (face != face2)
+            {
+                // check if face is touching face 2
+                if (find(stepDataObj.touchingFaces[face].begin(), stepDataObj.touchingFaces[face].end(), face2) != stepDataObj.touchingFaces[face].end())
+                {
+                    highLevelFeatures[objectNo].insert(face2);
+                    toremove.insert(face2);
+                }
+                // check if face and face 2 have a common face (that is listed in features)
+                else
+                {
+                    for (auto common : stepDataObj.touchingFaces[face])
+                    {
+                        for (auto common2 : stepDataObj.touchingFaces[face2])
+                        {
+                            if (common == common2)
+                            {
+                                if (find(features.begin(), features.end(), common) != features.end())
+                                {
+                                    highLevelFeatures[objectNo].insert(face2);
+                                    toremove.insert(face2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (auto item : toremove)
+        {
+            features2.erase(item);
+        }
+        //toremove.clear();
+        objectNo++;
+    }
+
+
+    for (auto item : highLevelFeatures)
+    {
+        cout << "Object: " << item.first << "\n";
         for (auto item2 : item.second)
         {
             cout << item2 << "\n";
         }
     }
 
-
-
-    // Identify a slot 
-    /*
-    for (auto advFace : stepDataObj.edgeCurveGeometry) // iterate faces
-    {
-        for (auto advFace1 : stepDataObj.edgeCurveGeometry) // iterate other faces for comparison
-        {
-            if (advFace != advFace1)
-            {
-                for (auto edge : stepDataObj.edgeCurveGeometry[advFace.first]) // iterate edges
-                {
-                    for (auto edge1 : stepDataObj.edgeCurveGeometry[advFace1.first])
-                    {
-                        for (auto item : stepDataObj.edgeCurveGeometry[advFace.first][edge.first]) // iterate items
-                        {
-                            //cout << "ITEM1: " << item << "\n\n";
-                            for (auto item1 : stepDataObj.edgeCurveGeometry[advFace1.first][edge1.first])
-                            {
-                                //cout << "ITEM2**********\n";
-                            }
-                        }
-                    } // end edge1
-                } // end edge
-            }
-        } // end advFace1
-            
-    } // end advFace
-    */
-    // identify a cyclindrical hole
-
-    // Identify a square hole
-    
+    write(highLevelFeatures, stepDataObj);
 }
 
 void FeatureFinder::featureFinderController(STEP stepDataObj)

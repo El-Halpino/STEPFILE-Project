@@ -326,7 +326,7 @@ void STEP::findEdgeCurves()
 		}
 	}
 	
-	/*
+	///*
 	for (auto key : edgeCurveGeometry)
 	{
 		cout << "\n\n\nFace : " << key.first << "\n";
@@ -339,7 +339,7 @@ void STEP::findEdgeCurves()
 			}
 		}
 	}
-	*/
+	//*/
 }
 
 // This method controls the step class

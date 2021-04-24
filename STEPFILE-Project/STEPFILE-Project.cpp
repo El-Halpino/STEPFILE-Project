@@ -11,8 +11,6 @@
 #include "FeatureFinder.h"
 #include "STEP.h"
 using namespace std;
-/*TO DO*/
-// Edit writeToFile() to allow any file to be passed with specified faces
 
 void writeToFile(STEP stepDataObj)
 {
@@ -85,7 +83,7 @@ int main()
     cout << "STEP File Location: C:\\work\\STEP\\\n";
     cout << "Enter the name of the STEP file\n";
     //cin >> inputFile;
-    inputFile = "CubeSQtopCut";
+    inputFile = "L_Bracket_v1";
     auto start = chrono::steady_clock::now();// Start Clock
     stepDataObj.stepController(inputFile);
     auto end = chrono::steady_clock::now();// End Clock
@@ -109,7 +107,6 @@ int main()
         cout << "***********************************************************\n";
     }
     */
-    writeToFile(stepDataObj);
     FeatureFinder highLevelFeatureObj;
     highLevelFeatureObj.featureFinderController(stepDataObj);
     return 0;
