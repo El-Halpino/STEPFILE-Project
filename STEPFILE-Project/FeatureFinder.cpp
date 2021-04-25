@@ -114,7 +114,7 @@ void writeFile(STEP cubeObj)
     vector<string> header = cubeObj.headerLines;
     set<string> compileLines = cubeObj.diffLines;
     set<string> featureLines;
-    ofstream TestFile("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\cubextended.step");
+    ofstream TestFile("WriteTests/cubextended.step");
     
     for (auto key : cubeObj.stepFeatureList)
     {
@@ -353,7 +353,7 @@ void write(map<int, set<string>> highLevelFeatures, STEP stepDataObj)
     for (auto key : highLevelFeatures)
     {
         string name = to_string(key.first);
-        string FilePath = ("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\Object" + name + ".step");
+        string FilePath = ("WriteTests/Object" + name + ".step");
         ofstream TestFile(FilePath.c_str());
         for (auto item : key.second)
         {
@@ -490,46 +490,42 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
     map<int, set<string>> highLevelFeatures;
     int objectNo = 0;
 
-    
     for (auto face : features)
     {
-        if (find(toremove.begin(), toremove.end(), face) != toremove.end())
+        if (find(toremove.begin(), toremove.end(), face) != toremove.end()) // ifthe current face has already been inserted
         {
             continue;
-        }
-        else
+        } 
+        else // if it hasn't, insert it now
         {
             highLevelFeatures[objectNo].insert(face);
             toremove.insert(face);
         }
-        if (features2.empty())
+        if (features2.empty()) // if there are no more features to search from
         {
             continue;
         }
         for (auto face2 : features2)
         {
-            if (face != face2)
+            if (face != face2) // don't compare the same face
             {
-                // check if face is touching face 2
+                // check if face is touching face2
                 if (find(stepDataObj.touchingFaces[face].begin(), stepDataObj.touchingFaces[face].end(), face2) != stepDataObj.touchingFaces[face].end())
                 {
                     highLevelFeatures[objectNo].insert(face2);
                     toremove.insert(face2);
                 }
-                // check if face and face 2 have a common face (that is listed in features)
+                // check if face and face2 have a common face (that is listed in features)
                 else
                 {
-                    for (auto common : stepDataObj.touchingFaces[face])
+                    for (auto common : stepDataObj.touchingFaces[face]) // check which faces touch face
                     {
                         for (auto common2 : stepDataObj.touchingFaces[face2])
                         {
-                            if (common == common2)
+                            if (common == common2 && find(features.begin(), features.end(), common) != features.end())
                             {
-                                if (find(features.begin(), features.end(), common) != features.end())
-                                {
-                                    highLevelFeatures[objectNo].insert(face2);
-                                    toremove.insert(face2);
-                                }
+                                highLevelFeatures[objectNo].insert(face2);
+                                toremove.insert(face2);
                             }
                         }
                     }
@@ -543,9 +539,7 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
         //toremove.clear();
         objectNo++;
     }
-
-
-    for (auto item : highLevelFeatures)
+    for (auto item : highLevelFeatures) // print 
     {
         cout << "Object: " << item.first << "\n";
         for (auto item2 : item.second)
@@ -553,8 +547,15 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
             cout << item2 << "\n";
         }
     }
-
-    write(highLevelFeatures, stepDataObj);
+    if (highLevelFeatures.empty())
+    {
+        cout << "No Features found\n";
+        return;
+    }
+    else {
+        write(highLevelFeatures, stepDataObj);
+    }
+    
 }
 
 void FeatureFinder::featureFinderController(STEP stepDataObj)

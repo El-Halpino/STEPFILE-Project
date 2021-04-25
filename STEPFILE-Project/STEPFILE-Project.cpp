@@ -80,34 +80,18 @@ int main()
 {
     string inputFile;
     STEP stepDataObj;
-    cout << "STEP File Location: C:\\work\\STEP\\\n";
+    // Read in STEP file names and display for user to choose from
+    
+    cout << "STEP File Location: STEPFILE-Project\\STEPFILES\\\n";
     cout << "Enter the name of the STEP file\n";
     //cin >> inputFile;
-    inputFile = "L_Bracket_v1";
+    inputFile = "CubeCUTS";
     auto start = chrono::steady_clock::now();// Start Clock
     stepDataObj.stepController(inputFile);
+    FeatureFinder highLevelFeatureObj;
+    highLevelFeatureObj.featureFinderController(stepDataObj);
     auto end = chrono::steady_clock::now();// End Clock
     cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
     system("pause");
-    string currentLine;
-    map<string, vector<string>> featureList = stepDataObj.stepFeatureList;
-   /*
-    for (auto key : featureList) 
-    {
-        cout << "***********************************************************";
-        cout << "\n" << "Key: " << key.first << " Results\n\n";
-        for (auto it = key.second.begin(); it != key.second.end(); ++it)
-        {
-            currentLine = *it;
-            if (currentLine.find(" EDGE_CURVE ") != string::npos)
-            {
-                cout << currentLine << "\n";
-            }
-        }
-        cout << "***********************************************************\n";
-    }
-    */
-    FeatureFinder highLevelFeatureObj;
-    highLevelFeatureObj.featureFinderController(stepDataObj);
     return 0;
 }

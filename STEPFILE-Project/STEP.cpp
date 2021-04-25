@@ -62,8 +62,8 @@ void STEP::extractFeatures(string inputFile)
 	bool header = true;
 	bool vPoint = false;
 
-	string FilePath = ("C:\\work\\STEP\\" + inputFile + ".step");
-
+	string FilePath = ("STEPFILES/" + inputFile + ".step");
+	//string FilePath = ("C:/work/STEP/" + inputFile + ".step");
 	std::cout << "Extracting Features... \n";
 	StepFile.open(FilePath.c_str()); // Read STEP File
 	if (!StepFile)
@@ -269,7 +269,7 @@ void STEP::checkFacesThatTouch()
 	*/
 }
 
-void STEP::findEdgeCurves()
+void STEP::findEdgeCurves() // could be used to identify more complex objects.
 {
 	string subLine, stepNumber, currentLine, edgeNumber;
 	vector<string> foundlines, nextLines;
@@ -326,7 +326,7 @@ void STEP::findEdgeCurves()
 		}
 	}
 	
-	///*
+	/*
 	for (auto key : edgeCurveGeometry)
 	{
 		cout << "\n\n\nFace : " << key.first << "\n";
@@ -339,7 +339,7 @@ void STEP::findEdgeCurves()
 			}
 		}
 	}
-	//*/
+	*/
 }
 
 // This method controls the step class
@@ -348,5 +348,5 @@ void STEP::stepController(string inputFile)
 	cout << "File name: " << inputFile << "\n";
 	extractFeatures(inputFile);
 	checkFacesThatTouch();
-	findEdgeCurves();
+	//findEdgeCurves();
 }
