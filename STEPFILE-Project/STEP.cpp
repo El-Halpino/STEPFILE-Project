@@ -30,16 +30,23 @@ void STEP::checkDifference()
 	}
 	// Compare features to data to see what's missing
 	set_difference(dataLines.begin(), dataLines.end(), featureLines.begin(), featureLines.end(),inserter(result, result.begin()));
-	/*
-	cout << "\n\nDIFFERENCES\n\n";
-	for (auto diff : result)
-	{
-		cout << diff << "\n"; // If these lines are missing from STEP, it won't compile in STEP readers
-	}
-	*/
 	STEP::diffLines = result;
 }
-
+// This method removes duplicates from a map of vectors
+map<string,vector<string>> removeDuplicates(map<string, vector<string>> mapWithDupes)
+{
+	vector<string>::iterator rd;
+	vector<string> v;
+	for (auto &item : mapWithDupes)
+	{
+		v = item.second;
+		sort(v.begin(), v.end());
+		rd = unique(v.begin(), v.end());
+		v.resize(distance(v.begin(), rd));
+		mapWithDupes[item.first] = v;
+	}
+	return mapWithDupes;
+}
 // This method reads a step file and creates a datalist and feature list
 void STEP::extractFeatures(string inputFile)
 {
@@ -48,34 +55,26 @@ void STEP::extractFeatures(string inputFile)
 	string stepNumber;
 	string multipleLineSTEP;
 	map<string, string> dataList;
+	map<string, vector<string>> featureList;
 	vector<string> faces;
 	ifstream StepFile;
-
-	map<string, vector<string>> featureList;
-	map<string, vector<string>> vPoints;
-	map<string, vector<string>> cartPoints;
-	vector<string> foundlines;
-	vector<string> nextlines;
-	set<string> subFeatures;
-	bool numberFound = false;
-	bool lastNumberFound = false;
 	bool header = true;
-	bool vPoint = false;
 
+	// First read the STEP file and insert lines into datalist
 	string FilePath = ("STEPFILES/" + inputFile + ".step");
-	//string FilePath = ("C:/work/STEP/" + inputFile + ".step");
 	std::cout << "Extracting Features... \n";
 	StepFile.open(FilePath.c_str()); // Read STEP File
+
 	if (!StepFile)
 	{
 		std::cout << "Unable to open STEP File\n";
 		exit(1);
 	}
-	else 
+	else
 	{
 		// Read STEP file's contents into memory
 		std::cout << "STEP File Opened\n";
-		while (getline (StepFile, currentLine)) // Cycle through each line
+		while (getline(StepFile, currentLine)) // Cycle through each line
 		{
 			if (currentLine[0] == '#')
 			{
@@ -127,6 +126,15 @@ void STEP::extractFeatures(string inputFile)
 		StepFile.close();
 		std::cout << "STEP File Closed\n";
 
+		// Declare Variables
+		map<string, vector<string>> vPoints;
+		map<string, vector<string>> cartPoints;
+		vector<string> foundlines;
+		vector<string> nextlines;
+		set<string> subFeatures;
+		bool numberFound = false;
+		bool lastNumberFound = false;
+		bool vPoint = false;
 
 		// Store features with sub features next
 		for (auto item : faces) // Iterate through adv faces
@@ -161,7 +169,7 @@ void STEP::extractFeatures(string inputFile)
 							{
 								stepNumber += ch;
 							}
-							else 
+							else
 							{
 								//std::cout << "\nFound : #" + stepNumber;
 								foundlines.push_back(dataList["#" + stepNumber]); // add found numbers to foundlines for next iteration
@@ -178,7 +186,7 @@ void STEP::extractFeatures(string inputFile)
 						else if (ch == '#')
 						{
 							numberFound = true;
-						}	
+						}
 					}
 					if (foundlines.size() == 0)
 					{
@@ -192,42 +200,18 @@ void STEP::extractFeatures(string inputFile)
 			} // end while
 			lastNumberFound = false;
 		}
+		// Remove Duplicates
+		removeDuplicates(featureList);
+		removeDuplicates(vPoints);
+		removeDuplicates(cartPoints);
+		STEP::stepFeatureList = featureList;
+		STEP::vertexPoints = vPoints;
+		STEP::cartesianPoints = cartPoints;
+		std::cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
+		checkDifference();
 	}
-
-	// Remove Duplicates
-	vector<string>::iterator rd;
-	vector<string> v;
-	for(auto item : featureList)
-	{
-		v = item.second;
-		sort(v.begin(), v.end());
-		rd = unique(v.begin(), v.end());
-		v.resize(distance(v.begin(), rd));
-		featureList[item.first] = v;
-	}
-	for (auto item : vPoints)
-	{
-		v = item.second;
-		sort(v.begin(), v.end());
-		rd = unique(v.begin(), v.end());
-		v.resize(distance(v.begin(), rd));
-		vPoints[item.first] = v;
-	}
-	for (auto item : cartPoints)
-	{
-		v = item.second;
-		sort(v.begin(), v.end());
-		rd = unique(v.begin(), v.end());
-		v.resize(distance(v.begin(), rd));
-		cartPoints[item.first] = v;
-	}
-	STEP::stepFeatureList = featureList;
-	STEP::vertexPoints = vPoints;
-	STEP::cartesianPoints = cartPoints;
-	std::cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
-	checkDifference();
 }
-
+// This method compares features to create a list of features that touch at one point or more
 void STEP::checkFacesThatTouch()
 { // 2 faces touch if they share a vertex point with the same geometrical location (X,Y,Z)
 	map<string, vector<string>> touchingFaces;
@@ -268,6 +252,8 @@ void STEP::checkFacesThatTouch()
 	}
 	*/
 }
+/*
+
 
 void STEP::findEdgeCurves() // could be used to identify more complex objects.
 {
@@ -326,7 +312,7 @@ void STEP::findEdgeCurves() // could be used to identify more complex objects.
 		}
 	}
 	
-	/*
+	
 	for (auto key : edgeCurveGeometry)
 	{
 		cout << "\n\n\nFace : " << key.first << "\n";
@@ -339,8 +325,8 @@ void STEP::findEdgeCurves() // could be used to identify more complex objects.
 			}
 		}
 	}
-	*/
-}
+	
+} */
 
 // This method controls the step class
 void STEP::stepController(string inputFile)

@@ -7,73 +7,34 @@
 #include <vector>
 #include <algorithm>
 #include <type_traits>
-
+#include <filesystem>
 #include "FeatureFinder.h"
 #include "STEP.h"
-using namespace std;
 
-void writeToFile(STEP stepDataObj)
+using namespace std;
+namespace fs = filesystem;
+
+void printFeatureCoords(FeatureFinder featureObj, STEP stepDataObj)
 {
-    map<string, vector<string>> featureList = stepDataObj.stepFeatureList;
-    vector<string> header = stepDataObj.headerLines;
-    set<string> compileLines = stepDataObj.diffLines;
-    set<string> featureLines;
-    
-    for (auto key : featureList)
+    cout << "\n\nThe following high level features have been identified. Cuts need to be made at the vertex points displayed below." << "\n\n";
+    set<string> holder;
+    for (auto hLFeature : featureObj.highLevelFeatures)
     {
-        for (auto it = key.second.begin(); it != key.second.end(); ++it)
+        cout << "High Level Feature : " << hLFeature.first << "\n";
+        for (auto face : hLFeature.second)
         {
-            featureLines.insert(*it);
+            for (auto point : stepDataObj.vertexPoints[face])
+            {
+                holder.insert(point);
+            }
         }
-    } 
-    //ofstream TestFile("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\testfile3.step"); // File created and opened
-    // Writes each face into separate files
-    ///*
-    for (auto key : featureList)
-    {
-        cout << "\nWriting File: " << key.first << "\n";
-        string FilePath = ("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\" + key.first + ".step");
-        ofstream AdvFace(FilePath.c_str());
-        if (!AdvFace)
+        for (auto item : holder)
         {
-            cout << "Failed to create file\n";
-        }
-        else
-        {
-            for (auto line1 : header)
-            {
-                AdvFace << line1 << "\n";
-            }
-            for (auto it = key.second.begin(); it != key.second.end(); ++it)
-            {
-                AdvFace << *it << "\n";
-            }
-            for (auto line3 : compileLines)
-            {
-                AdvFace << line3 << "\n";
-            }
-            AdvFace << "ENDSEC;\nEND - ISO - 10303 - 21;";
-            AdvFace.close();
-        }
-    } //*/
-    /* // Writes whole object into one file
-    cout << "\nCurrent File: \n\n";
-    for (auto line1 : header)
-    {
-        cout << line1 << "\n";
-        TestFile << line1 << "\n";
+            cout << item << "\n";
+        }  
+        holder.clear();
+        system("pause");
     }
-    for (auto line2 : featureLines)
-    {
-            TestFile << line2 << "\n";
-    }
-    for (auto line3 : compileLines)
-    {
-        TestFile << line3 << "\n";
-    }
-    TestFile << "ENDSEC;\nEND - ISO - 10303 - 21;";
-    TestFile.close(); // file closed
-    */  
 }
 
 int main()
@@ -81,11 +42,13 @@ int main()
     string inputFile;
     STEP stepDataObj;
     // Read in STEP file names and display for user to choose from
-    
     cout << "STEP File Location: STEPFILE-Project\\STEPFILES\\\n";
-    cout << "Enter the name of the STEP file\n";
-    //cin >> inputFile;
-    inputFile = "CubeCUTS";
+    string path = "STEPFILES/";
+    for (const auto& entry : fs::directory_iterator(path))
+        cout << entry.path() << endl;
+    cout << "Enter the name of the STEP file (sans file extension)" << endl;
+    cin >> inputFile;
+    //inputFile = "CubeCUTS";
     auto start = chrono::steady_clock::now();// Start Clock
     stepDataObj.stepController(inputFile);
     FeatureFinder highLevelFeatureObj;
@@ -93,5 +56,6 @@ int main()
     auto end = chrono::steady_clock::now();// End Clock
     cout << "\nTime taken to read STEP: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n\n";
     system("pause");
+    printFeatureCoords(highLevelFeatureObj, stepDataObj);
     return 0;
 }

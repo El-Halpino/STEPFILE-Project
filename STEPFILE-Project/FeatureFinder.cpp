@@ -1,12 +1,15 @@
 // This class will be used to identify high level features
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <filesystem>
 #include "FeatureFinder.h"
 #include "STEP.h"
 
 using namespace std;
-
+namespace fs = filesystem;
+// This method finds the Min / Max points in the STEP file, to create an object that fits the min / max of the original
 void FeatureFinder::findMinMax(STEP stepDataObj)
 {                                       //          x                       y                    z
     // #796 = CARTESIAN_POINT ( 'NONE',  ( 28.20906519726944239, 20.00000000000000000, 13.79214587795902425 ) ) ;
@@ -108,7 +111,7 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
     cout << "Min Z Value: " << minZ << "\n"; 
     */
 }
-
+/*
 void writeFile(STEP cubeObj)
 {
     vector<string> header = cubeObj.headerLines;
@@ -138,7 +141,7 @@ void writeFile(STEP cubeObj)
     TestFile << "ENDSEC;\nEND - ISO - 10303 - 21;";
     TestFile.close(); // file closed
 }
-
+*/
 void FeatureFinder::createCubeToFit(STEP cubeObj, STEP stepDataObj)
 {
     FeatureFinder cubeFinder;
@@ -251,11 +254,9 @@ void FeatureFinder::createCubeToFit(STEP cubeObj, STEP stepDataObj)
             }
         }
     }
-
-    writeFile(cubeObj);
     identifyHighLevelFeatures(stepDataObj, cubeObj);
 }
-
+// This method checks if two points are equal within a range
 bool isEqual(string pointOne , string pointTwo)
 {
     string oneX, oneY, oneZ;
@@ -342,14 +343,16 @@ bool isEqual(string pointOne , string pointTwo)
     }
     return false;
 }
-
+// This method writes the HLF to their own step files.
 void write(map<int, set<string>> highLevelFeatures, STEP stepDataObj)
-{
+{ // write the objects
+    // remove files already inside first
+    string path = "WriteTests/";
+    for (const auto& entry : fs::directory_iterator(path))
+        fs::remove_all(entry.path());
     vector<string> header = stepDataObj.headerLines;
     set<string> compileLines = stepDataObj.diffLines;
     set<string> featureLines;
-    // string FilePath = ("C:\\Users\\alanh\\source\\repos\\STEPFILE-Project\\WriteTests\\" + key.first + ".step");
-    // ofstream AdvFace(FilePath.c_str());
     for (auto key : highLevelFeatures)
     {
         string name = to_string(key.first);
@@ -378,8 +381,8 @@ void write(map<int, set<string>> highLevelFeatures, STEP stepDataObj)
         TestFile.close(); // file closed
         featureLines.clear();
     }
+    cout << "All Features have been written to STEPFILE-Project/WriteTests" << endl;
 }
-
 
 void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj) 
 {
@@ -437,11 +440,6 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
         }
     }
    
-    cout << "\n\n\nPoints not shared: " << linesNotShared.size() << "\n";
-    for (auto item : linesNotShared)
-    {
-        cout << item << "\n";
-    }
     // Which faces do these points belong to?
     map<string, set<string>> points;
     for (auto advFace : stepDataObj.stepFeatureList)
@@ -475,7 +473,7 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
                 if (pointCount == stepDataObj.vertexPoints[advFace.first].size())
                 {
                     features.insert(advFace.first);
-                    cout << advFace.first << "\n";
+                    //cout << advFace.first << "\n";
                     goto NextPoint;
                 }
             }
@@ -484,6 +482,7 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
         pointCount = 0;
         continue;
     }
+
     // check if advFaces found have faces that touch in common
     set<string> features2 = features;
     set<string> toremove;
@@ -492,7 +491,7 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
 
     for (auto face : features)
     {
-        if (find(toremove.begin(), toremove.end(), face) != toremove.end()) // ifthe current face has already been inserted
+        if (find(toremove.begin(), toremove.end(), face) != toremove.end()) // if the current face has already been inserted
         {
             continue;
         } 
@@ -539,23 +538,16 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
         //toremove.clear();
         objectNo++;
     }
-    for (auto item : highLevelFeatures) // print 
-    {
-        cout << "Object: " << item.first << "\n";
-        for (auto item2 : item.second)
-        {
-            cout << item2 << "\n";
-        }
-    }
+    FeatureFinder::highLevelFeatures = highLevelFeatures;
     if (highLevelFeatures.empty())
     {
         cout << "No Features found\n";
         return;
     }
-    else {
+    else 
+    {
         write(highLevelFeatures, stepDataObj);
     }
-    
 }
 
 void FeatureFinder::featureFinderController(STEP stepDataObj)

@@ -14,7 +14,7 @@ private:
 	
 public:
 	void featureFinderController(STEP stepDataObj);
-	map<string, vector<string>> highLevelFeatures;
+	map<int, set<string>> highLevelFeatures;
 
 };
 

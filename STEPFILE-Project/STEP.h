@@ -13,8 +13,8 @@ private:
 	void extractFeatures(string inputFile);
 	void checkDifference();
 	void checkFacesThatTouch();
-	void findEdgeCurves();
-
+	//void findEdgeCurves();
+	 
 public:	
 	vector<string> headerLines;
 	set<string> diffLines;
