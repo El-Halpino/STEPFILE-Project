@@ -1,5 +1,14 @@
+/*
+This work is licensed under the  Creative Commons Attribution-ShareAlike 4.0 International Licence.
+To view of this licence, visit http://creativecommons.org/licenses/by-sa/4.0/.
+*/
+/*! \class FeatureFinder.cpp
+    \brief Identify High Level Features
+    \author Alan Halpin
+    \date 29/04/2021
+    \copyright Creative Commons Attribution-ShareAlike 4.0 International Licence
+*/
 // This class will be used to identify high level features
-
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -100,19 +109,9 @@ void FeatureFinder::findMinMax(STEP stepDataObj)
                 count = 0;
         }
     }
-    /*
-    cout << "\n\n";
-    cout << setprecision(19);
-    cout << "Max X Value: " << maxX << "\n";
-    cout << "Min X Value: " << minX << "\n";
-    cout << "Max Y Value: " << maxY << "\n";
-    cout << "Min Y Value: " << minY << "\n";
-    cout << "Max Z Value: " << maxZ << "\n";
-    cout << "Min Z Value: " << minZ << "\n"; 
-    */
 }
-/*
-void writeFile(STEP cubeObj)
+
+void writeFile(STEP cubeObj) // writing the cubeobj
 {
     vector<string> header = cubeObj.headerLines;
     set<string> compileLines = cubeObj.diffLines;
@@ -141,7 +140,7 @@ void writeFile(STEP cubeObj)
     TestFile << "ENDSEC;\nEND - ISO - 10303 - 21;";
     TestFile.close(); // file closed
 }
-*/
+
 void FeatureFinder::createCubeToFit(STEP cubeObj, STEP stepDataObj)
 {
     FeatureFinder cubeFinder;
@@ -557,4 +556,5 @@ void FeatureFinder::featureFinderController(STEP stepDataObj)
     STEP cubeObj; // Create Cube Objects
     cubeObj.stepController("Cube"); // Read cube and fill variables
     createCubeToFit(cubeObj, stepDataObj);
+    //writeFile(cubeObj);
 }

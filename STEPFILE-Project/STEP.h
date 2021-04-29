@@ -1,3 +1,13 @@
+/*
+This work is licensed under the  Creative Commons Attribution-ShareAlike 4.0 International Licence.
+To view of this licence, visit http://creativecommons.org/licenses/by-sa/4.0/.
+*/
+/*! \class STEP.h
+	\brief
+	\author Alan Halpin
+	\date 29/04/2021
+	\copyright Creative Commons Attribution-ShareAlike 4.0 International Licence
+*/
 #pragma once
 #include <map>
 #include <set>
@@ -26,4 +36,3 @@ public:
 
 	void stepController(string inputFile);	
 };
-

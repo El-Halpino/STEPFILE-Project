@@ -1,3 +1,13 @@
+/*
+This work is licensed under the  Creative Commons Attribution-ShareAlike 4.0 International Licence.
+To view of this licence, visit http://creativecommons.org/licenses/by-sa/4.0/.
+*/
+/*! \class STEP.cpp
+	\brief Create DataList and Identify low level features
+	\author Alan Halpin
+	\date 29/04/2021
+	\copyright Creative Commons Attribution-ShareAlike 4.0 International Licence
+*/
 #include "STEP.h"
 #include <iostream>
 #include <fstream>
@@ -253,7 +263,6 @@ void STEP::checkFacesThatTouch()
 	*/
 }
 /*
-
 
 void STEP::findEdgeCurves() // could be used to identify more complex objects.
 {

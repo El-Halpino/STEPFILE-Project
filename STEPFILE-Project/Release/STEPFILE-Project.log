@@ -1,0 +1,9 @@
+﻿  FeatureFinder.cpp
+  STEP.cpp
+C:\Users\alanh\source\repos\STEPFILE-Project\STEPFILE-Project\STEP.cpp(207,23): warning C4018: '<': signed/unsigned mismatch
+  STEPFILE-Project.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 1442 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  STEPFILE-Project.vcxproj -> C:\Users\alanh\source\repos\STEPFILE-Project\Release\STEPFILE-Project.exe
