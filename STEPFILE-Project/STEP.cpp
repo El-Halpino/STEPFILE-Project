@@ -70,6 +70,7 @@ void STEP::extractFeatures(string inputFile)
 	ifstream StepFile;
 	bool header = true;
 	bool filestatus;
+tryagain:
 	// First read the STEP file and insert lines into datalist
 	string FilePath = ("STEPFILES/" + inputFile + ".step");
 	std::cout << "Extracting Features... \n";
@@ -78,12 +79,12 @@ void STEP::extractFeatures(string inputFile)
 	if (!StepFile)
 	{
 		std::cout << "Unable to open STEP File\n";
-		filestatus = false;
-		exit(1);
+		cout << "Enter Name of File Again" << endl;
+		cin >> inputFile;
+		goto tryagain;
 	}
 	else
 	{
-		filestatus = true;
 		// Read STEP file's contents into memory
 		std::cout << "STEP File Opened\n";
 		while (getline(StepFile, currentLine)) // Cycle through each line
