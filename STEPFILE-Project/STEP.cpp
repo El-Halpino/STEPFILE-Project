@@ -69,7 +69,7 @@ void STEP::extractFeatures(string inputFile)
 	vector<string> faces;
 	ifstream StepFile;
 	bool header = true;
-
+	bool filestatus;
 	// First read the STEP file and insert lines into datalist
 	string FilePath = ("STEPFILES/" + inputFile + ".step");
 	std::cout << "Extracting Features... \n";
@@ -78,10 +78,12 @@ void STEP::extractFeatures(string inputFile)
 	if (!StepFile)
 	{
 		std::cout << "Unable to open STEP File\n";
+		filestatus = false;
 		exit(1);
 	}
 	else
 	{
+		filestatus = true;
 		// Read STEP file's contents into memory
 		std::cout << "STEP File Opened\n";
 		while (getline(StepFile, currentLine)) // Cycle through each line
@@ -217,7 +219,7 @@ void STEP::extractFeatures(string inputFile)
 		STEP::stepFeatureList = featureList;
 		STEP::vertexPoints = vPoints;
 		STEP::cartesianPoints = cartPoints;
-		std::cout << "\nAdvanced Faces Found: " << faces.size() << "\n";
+		std::cout << "Advanced Faces Found: " << faces.size() << "\n\n";
 		checkDifference();
 	}
 }

@@ -253,6 +253,7 @@ void FeatureFinder::createCubeToFit(STEP cubeObj, STEP stepDataObj)
             }
         }
     }
+    cout << "Min / Max cube has been created" << endl;
     identifyHighLevelFeatures(stepDataObj, cubeObj);
 }
 // This method checks if two points are equal within a range
@@ -551,7 +552,6 @@ void FeatureFinder::identifyHighLevelFeatures(STEP stepDataObj, STEP cubeObj)
 
 void FeatureFinder::featureFinderController(STEP stepDataObj)
 {
-    cout << "Welcome to the Feature Finder\n";
     findMinMax(stepDataObj);
     STEP cubeObj; // Create Cube Objects
     cubeObj.stepController("Cube"); // Read cube and fill variables
